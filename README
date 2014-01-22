@@ -1,0 +1,21 @@
+ZIMA-libqdxf
+============
+
+Requirements
+------------
+Qt 4.x - modules core, gui, qmake
+
+Installation
+------------
+  tar xzf ZIMA-libqdxf-1.0.0-src.tar.gz
+  cd ZIMA-libqdxf-1.0.0-src
+  qmake
+  make
+
+You can try example application at testapp/testapp.
+
+Usage
+-----
+For example usage of this library, see application
+in testapp/main.cpp.
+
