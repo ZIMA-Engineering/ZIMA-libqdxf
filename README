@@ -3,7 +3,7 @@ ZIMA-libqdxf
 
 Requirements
 ------------
-Qt 4.x - modules core, gui, qmake
+Qt >= 6.4 - modules core, gui, qmake
 
 Installation
 ------------
