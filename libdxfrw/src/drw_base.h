@@ -88,6 +88,11 @@ public:
         y = iy;
         z = iz;
     }
+    DRW_Coord(const DRW_Coord &other) {
+        x = other.x;
+        y = other.y;
+        z = other.z;
+    }
 
     DRW_Coord operator = (const DRW_Coord& data) {
         x = data.x;

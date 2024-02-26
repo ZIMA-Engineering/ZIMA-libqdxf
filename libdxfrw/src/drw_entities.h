@@ -102,6 +102,23 @@ public:
         haveExtrusion = d.haveExtrusion;
     }
 
+    DRW_Entity& operator=(const DRW_Entity& d) {
+        eType = d.eType;
+        handle = d.handle;
+        handleBlock = d.handleBlock;
+        layer = d.layer;
+        lineType = d.lineType;
+        color = d.color;
+        color24 = d.color24;
+        colorName = d.colorName;
+        ltypeScale = d.ltypeScale;
+        visible = d.visible;
+        lWeight = d.lWeight;
+        space = d.space;
+        haveExtrusion = d.haveExtrusion;
+        return *this;
+    }
+
     virtual void applyExtrusion() = 0;
 protected:
     void parseCode(int code, dxfReader *reader);

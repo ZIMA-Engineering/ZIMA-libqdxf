@@ -2441,10 +2441,10 @@ bool dxfRW::processPolyline() {
             } else {
                 processVertex(&pl);
             }
+            break;
         }
         default:
             pl.parseCode(code, reader);
-            break;
         }
     }
     return true;
@@ -2468,10 +2468,10 @@ bool dxfRW::processVertex(DRW_Polyline *pl) {
             } else if (nextentity == "VERTEX") {
                 v = new DRW_Vertex(); //another vertex
             }
+            break;
         }
         default:
             v->parseCode(code, reader);
-            break;
         }
     }
     return true;
