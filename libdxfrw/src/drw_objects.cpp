@@ -21,7 +21,7 @@
 *  Base class for tables entries
 *  @author Rallaz
 */
-void DRW_TableEntry::parseCode(int code, dxfReader *reader){
+void DRW_TableEntry::parseCode(int code, dxfReader *reader) {
     switch (code) {
     case 5:
         handle = reader->getHandleString();
@@ -45,7 +45,7 @@ void DRW_TableEntry::parseCode(int code, dxfReader *reader){
 *  Class to handle ldim style symbol table entries
 *  @author Rallaz
 */
-void DRW_Dimstyle::parseCode(int code, dxfReader *reader){
+void DRW_Dimstyle::parseCode(int code, dxfReader *reader) {
     switch (code) {
     case 105:
         handle = reader->getHandleString();
@@ -262,7 +262,7 @@ void DRW_Dimstyle::parseCode(int code, dxfReader *reader){
 *  Class to handle line type symbol table entries
 *  @author Rallaz
 */
-void DRW_LType::parseCode(int code, dxfReader *reader){
+void DRW_LType::parseCode(int code, dxfReader *reader) {
     switch (code) {
     case 3:
         desc = reader->getUtf8String();
@@ -278,9 +278,9 @@ void DRW_LType::parseCode(int code, dxfReader *reader){
         path.push_back(reader->getDouble());
         pathIdx++;
         break;
-/*    case 74:
-        haveShape = reader->getInt32();
-        break;*/
+    /*    case 74:
+            haveShape = reader->getInt32();
+            break;*/
     default:
         DRW_TableEntry::parseCode(code, reader);
         break;
@@ -293,10 +293,10 @@ void DRW_LType::parseCode(int code, dxfReader *reader){
 *  @author Rallaz
 */
 /*TODO: control max length permited */
-void DRW_LType::update(){
+void DRW_LType::update() {
     double d =0;
     size = path.size();
-    for (int i = 0;  i< size; i++){
+    for (int i = 0;  i< size; i++) {
         d += fabs(path.at(i));
     }
     length = d;
@@ -307,7 +307,7 @@ void DRW_LType::update(){
 *  Class to handle layer symbol table entries
 *  @author Rallaz
 */
-void DRW_Layer::parseCode(int code, dxfReader *reader){
+void DRW_Layer::parseCode(int code, dxfReader *reader) {
     switch (code) {
     case 6:
         lineType = reader->getUtf8String();
@@ -341,7 +341,7 @@ void DRW_Layer::parseCode(int code, dxfReader *reader){
 *  Class to handle text style symbol table entries
 *  @author Rallaz
 */
-void DRW_Textstyle::parseCode(int code, dxfReader *reader){
+void DRW_Textstyle::parseCode(int code, dxfReader *reader) {
     switch (code) {
     case 3:
         font = reader->getUtf8String();
@@ -378,7 +378,7 @@ void DRW_Textstyle::parseCode(int code, dxfReader *reader){
 *  Class to handle vport symbol table entries
 *  @author Rallaz
 */
-void DRW_Vport::parseCode(int code, dxfReader *reader){
+void DRW_Vport::parseCode(int code, dxfReader *reader) {
     switch (code) {
     case 10:
         lowerLeft.x = reader->getDouble();
@@ -485,7 +485,7 @@ void DRW_Vport::parseCode(int code, dxfReader *reader){
     }
 }
 
-void DRW_ImageDef::parseCode(int code, dxfReader *reader){
+void DRW_ImageDef::parseCode(int code, dxfReader *reader) {
     switch (code) {
     case 1:
         name = reader->getUtf8String();
@@ -519,13 +519,13 @@ void DRW_ImageDef::parseCode(int code, dxfReader *reader){
     }
 }
 
-void DRW_Header::addComment(string c){
+void DRW_Header::addComment(string c) {
     if (!comments.empty())
         comments += '\n';
     comments += c;
 }
 
-void DRW_Header::parseCode(int code, dxfReader *reader){
+void DRW_Header::parseCode(int code, dxfReader *reader) {
     switch (code) {
     case 9:
         curr = new DRW_Variant();
@@ -619,8 +619,8 @@ void DRW_Header::parseCode(int code, dxfReader *reader){
     }
 }
 
-void DRW_Header::write(dxfWriter *writer, DRW::Version ver){
-/*RLZ: TODO complete all vars to AC1024*/
+void DRW_Header::write(dxfWriter *writer, DRW::Version ver) {
+    /*RLZ: TODO complete all vars to AC1024*/
     double varDouble;
     int varInt;
     std::string varStr;
@@ -642,9 +642,9 @@ void DRW_Header::write(dxfWriter *writer, DRW::Version ver){
     case DRW::AC1018: //acad 2004
         varStr = "AC1018";
         break;
-/*    case DRW::AC1021: //acad 2007
-        varStr = "AC1021";
-        break;*/
+    /*    case DRW::AC1021: //acad 2007
+            varStr = "AC1021";
+            break;*/
     case DRW::AC1024: //acad 2010
         varStr = "AC1024";
         break;
@@ -774,7 +774,7 @@ void DRW_Header::write(dxfWriter *writer, DRW::Version ver){
             writer->writeInt16(70, 0);
     }
     //verify if exist "$DIMLUNIT" or obsolete "$DIMUNIT" (pre v2000)
-    if ( !getInt("$DIMLUNIT", &varInt) ){
+    if ( !getInt("$DIMLUNIT", &varInt) ) {
         if (!getInt("$DIMUNIT", &varInt))
             varInt = 2;
     }
@@ -828,13 +828,13 @@ void DRW_Header::write(dxfWriter *writer, DRW::Version ver){
     else
         writer->writeInt16(70, 2);
     if (ver > DRW::AC1009) {
-    writer->writeString(9, "$SPLINESEGS");
-    if (getInt("$SPLINESEGS", &varInt)) {
-        writer->writeInt16(70, varInt);
-    } else
-        writer->writeInt16(70, 8);
+        writer->writeString(9, "$SPLINESEGS");
+        if (getInt("$SPLINESEGS", &varInt)) {
+            writer->writeInt16(70, varInt);
+        } else
+            writer->writeInt16(70, 8);
     }
-/* RLZ: moved to active VPORT, but can write in header if present*/
+    /* RLZ: moved to active VPORT, but can write in header if present*/
     if (getInt("$GRIDMODE", &varInt)) {
         writer->writeString(9, "$GRIDMODE");
         writer->writeInt16(70, varInt);
@@ -853,7 +853,7 @@ void DRW_Header::write(dxfWriter *writer, DRW::Version ver){
         writer->writeDouble(10, varCoord.x);
         writer->writeDouble(20, varCoord.y);
     }
-/* RLZ: moved to active VPORT, but can write in header if present*/
+    /* RLZ: moved to active VPORT, but can write in header if present*/
 
     if (ver > DRW::AC1009) {
         writer->writeString(9, "$PINSBASE");
@@ -898,14 +898,14 @@ void DRW_Header::write(dxfWriter *writer, DRW::Version ver){
             writer->writeDouble(40, 0.0);
     }
     std::map<std::string,DRW_Variant *>::const_iterator it;
-    for ( it=vars.begin() ; it != vars.end(); it++ ){
+    for ( it=vars.begin() ; it != vars.end(); it++ ) {
 //        QString key = QString::fromStdString((*it).first);
         std::cerr << (*it).first << std::endl;
     }
 
 }
 
-bool DRW_Header::getDouble(string key, double *varDouble){
+bool DRW_Header::getDouble(string key, double *varDouble) {
     bool result = false;
     std::map<std::string,DRW_Variant *>::iterator it;
     it=vars.find( key);
@@ -920,7 +920,7 @@ bool DRW_Header::getDouble(string key, double *varDouble){
     return result;
 }
 
-bool DRW_Header::getInt(string key, int *varInt){
+bool DRW_Header::getInt(string key, int *varInt) {
     bool result = false;
     std::map<std::string,DRW_Variant *>::iterator it;
     it=vars.find( key);
@@ -935,7 +935,7 @@ bool DRW_Header::getInt(string key, int *varInt){
     return result;
 }
 
-bool DRW_Header::getStr(string key, std::string *varStr){
+bool DRW_Header::getStr(string key, std::string *varStr) {
     bool result = false;
     std::map<std::string,DRW_Variant *>::iterator it;
     it=vars.find( key);
@@ -950,7 +950,7 @@ bool DRW_Header::getStr(string key, std::string *varStr){
     return result;
 }
 
-bool DRW_Header::getCoord(string key, DRW_Coord *varCoord){
+bool DRW_Header::getCoord(string key, DRW_Coord *varCoord) {
     bool result = false;
     std::map<std::string,DRW_Variant *>::iterator it;
     it=vars.find( key);

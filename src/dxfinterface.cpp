@@ -310,7 +310,7 @@ QPen DXFInterface::attributesToPen(const DRW_Entity *e)
         qDebug() << "nevid";
 
     if (e->color == 256)
-    { // BYLAYER
+    {   // BYLAYER
         DRW_Layer l = getLayer(e->layer);
         p.setColor( numberToColor( l.color));
     }
@@ -353,8 +353,8 @@ QColor DXFInterface::numberToColor(int col)
     {
 
         return QColor::fromRgb(DRW::dxfColors[col][0],
-                DRW::dxfColors[col][1],
-                DRW::dxfColors[col][2]);
+                               DRW::dxfColors[col][1],
+                               DRW::dxfColors[col][2]);
     }
 
     return QColor(Qt::red);

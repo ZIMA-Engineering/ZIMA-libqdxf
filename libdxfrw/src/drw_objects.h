@@ -27,15 +27,15 @@ using std::string;
 namespace DRW {
 
 //! Table entries type.
-     enum TTYPE {
-         UNKNOWNT,
-         LTYPE,
-         LAYER,
-         STYLE,
-         DIMSTYLE,
-         VPORT,
-         BLOCK_RECORD
-     };
+enum TTYPE {
+    UNKNOWNT,
+    LTYPE,
+    LAYER,
+    STYLE,
+    DIMSTYLE,
+    VPORT,
+    BLOCK_RECORD
+};
 
 
 }
@@ -73,9 +73,11 @@ public:
 */
 class DRW_Dimstyle : public DRW_TableEntry {
 public:
-    DRW_Dimstyle() { reset();}
+    DRW_Dimstyle() {
+        reset();
+    }
 
-    void reset(){
+    void reset() {
         tType = DRW::DIMSTYLE;
         dimasz = dimtxt = dimexe = 0.18;
         dimexo = 0.0625;
@@ -105,7 +107,7 @@ public:
     //V12
     UTF8STRING dimpost;       /*!< code 3 */
     UTF8STRING dimapost;      /*!< code 4 */
-/* handle are code 105 */
+    /* handle are code 105 */
     UTF8STRING dimblk;        /*!< code 5, code 342 V2000+ */
     UTF8STRING dimblk1;       /*!< code 6, code 343 V2000+ */
     UTF8STRING dimblk2;       /*!< code 7, code 344 V2000+ */
@@ -181,17 +183,19 @@ public:
 /*TODO: handle complex lineType*/
 class DRW_LType : public DRW_TableEntry {
 public:
-    DRW_LType() { reset();}
+    DRW_LType() {
+        reset();
+    }
 
-    void reset(){
+    void reset() {
         tType = DRW::LTYPE;
         desc = "";
         size = 0;
         length = 0.0;
         pathIdx = 0;
-/*        color = 256; // default BYLAYER (256)
-        plotF = true; // default TRUE (plot yes)
-        lWeight = -1; // default BYLAYER (-1)*/
+        /*        color = 256; // default BYLAYER (256)
+                plotF = true; // default TRUE (plot yes)
+                lWeight = -1; // default BYLAYER (-1)*/
 //        align = 65; //always 65
     }
 
@@ -217,7 +221,9 @@ private:
 */
 class DRW_Layer : public DRW_TableEntry {
 public:
-    DRW_Layer() { reset();}
+    DRW_Layer() {
+        reset();
+    }
 
     void reset() {
         tType = DRW::LAYER;
@@ -247,9 +253,11 @@ public:
 */
 class DRW_Textstyle : public DRW_TableEntry {
 public:
-    DRW_Textstyle() { reset();}
+    DRW_Textstyle() {
+        reset();
+    }
 
-    void reset(){
+    void reset() {
         tType = DRW::STYLE;
         height = oblique = 0.0;
         width = lastHeight = 1.0;
@@ -278,9 +286,11 @@ public:
 */
 class DRW_Vport : public DRW_TableEntry {
 public:
-    DRW_Vport() { reset();}
+    DRW_Vport() {
+        reset();
+    }
 
-    void reset(){
+    void reset() {
         UpperRight.x = UpperRight.y = 1.0;
         snapSpacing.x = snapSpacing.y = 10.0;
         gridSpacing = snapSpacing;
@@ -373,7 +383,7 @@ public:
     }
     ~DRW_Header() {
         for ( std::map<string,DRW_Variant*>::iterator it = vars.begin(); it != vars.end(); ++it )
-                delete it->second;
+            delete it->second;
 
         vars.clear();
     }
@@ -381,7 +391,9 @@ public:
     void parseCode(int code, dxfReader *reader);
     void write(dxfWriter *writer, DRW::Version ver);
     void addComment(string c);
-    string getComments() const {return comments;}
+    string getComments() const {
+        return comments;
+    }
 private:
     bool getDouble(string key, double *varDouble);
     bool getInt(string key, int *varInt);

@@ -34,10 +34,10 @@ using std::string;
 #endif
 
 #ifndef M_PI
- #define M_PI       3.141592653589793238462643
+#define M_PI       3.141592653589793238462643
 #endif
 #ifndef M_PI_2
- #define M_PI_2       1.57079632679489661923
+#define M_PI_2       1.57079632679489661923
 #endif
 #define M_PIx2      6.283185307179586 // 2*PI
 #define ARAD 57.29577951308232
@@ -57,16 +57,16 @@ enum Version {
 };
 
 enum error {
-BAD_NONE,             /*!< No error. */
-BAD_UNKNOWN,          /*!< UNKNOWN. */
-BAD_OPEN,             /*!< error opening file. */
-BAD_VERSION,          /*!< unsupported version. */
-BAD_READ_FILE_HEADER, /*!< error in file header read process. */
-BAD_READ_HEADER,      /*!< error in header vars read process. */
-BAD_READ_OFFSETS,     /*!< error in object map read process. */
-BAD_READ_CLASSES,     /*!< error in classes read process. */
-BAD_READ_TABLES,      /*!< error in tables read process. */
-BAD_READ_ENTITIES     /*!< error in entities read process. */
+    BAD_NONE,             /*!< No error. */
+    BAD_UNKNOWN,          /*!< UNKNOWN. */
+    BAD_OPEN,             /*!< error opening file. */
+    BAD_VERSION,          /*!< unsupported version. */
+    BAD_READ_FILE_HEADER, /*!< error in file header read process. */
+    BAD_READ_HEADER,      /*!< error in header vars read process. */
+    BAD_READ_OFFSETS,     /*!< error in object map read process. */
+    BAD_READ_CLASSES,     /*!< error in classes read process. */
+    BAD_READ_TABLES,      /*!< error in tables read process. */
+    BAD_READ_ENTITIES     /*!< error in entities read process. */
 };
 
 }
@@ -78,17 +78,25 @@ BAD_READ_ENTITIES     /*!< error in entities read process. */
 */
 class DRW_Coord {
 public:
-    DRW_Coord() { x = 0; y = 0; z = 0; }
+    DRW_Coord() {
+        x = 0;
+        y = 0;
+        z = 0;
+    }
     DRW_Coord(double ix, double iy, double iz) {
-        x = ix; y = iy; z = iz;
+        x = ix;
+        y = iy;
+        z = iz;
     }
 
-     DRW_Coord operator = (const DRW_Coord& data) {
-        x = data.x;  y = data.y;  z = data.z;
+    DRW_Coord operator = (const DRW_Coord& data) {
+        x = data.x;
+        y = data.y;
+        z = data.z;
         return *this;
     }
-/*!< convert to unitary vector */
-    void unitize(){
+    /*!< convert to unitary vector */
+    void unitize() {
         double dist;
         dist = sqrt(x*x + y*y + z*z);
         if (dist > 0.0) {
@@ -156,14 +164,36 @@ public:
     }
     enum TYPE type;
 
-    void addString(UTF8STRING s) {setType(STRING); data = s; content.s = &data;}
-    void addInt(int i) {setType(INTEGER); content.i = i;}
-    void addDouble(double d) {setType(DOUBLE); content.d = d;}
-    void addCoord(DRW_Coord *v) {setType(COORD); content.v = v;}
-    void setType(enum TYPE t) { if (type == COORD) delete content.v; type = t;}
-    void setCoordX(double d) { if (type == COORD) content.v->x = d;}
-    void setCoordY(double d) { if (type == COORD) content.v->y = d;}
-    void setCoordZ(double d) { if (type == COORD) content.v->z = d;}
+    void addString(UTF8STRING s) {
+        setType(STRING);
+        data = s;
+        content.s = &data;
+    }
+    void addInt(int i) {
+        setType(INTEGER);
+        content.i = i;
+    }
+    void addDouble(double d) {
+        setType(DOUBLE);
+        content.d = d;
+    }
+    void addCoord(DRW_Coord *v) {
+        setType(COORD);
+        content.v = v;
+    }
+    void setType(enum TYPE t) {
+        if (type == COORD) delete content.v;
+        type = t;
+    }
+    void setCoordX(double d) {
+        if (type == COORD) content.v->x = d;
+    }
+    void setCoordY(double d) {
+        if (type == COORD) content.v->y = d;
+    }
+    void setCoordZ(double d) {
+        if (type == COORD) content.v->z = d;
+    }
 
 private:
     typedef union {
@@ -193,7 +223,7 @@ private:
 *  returns widthDefault.
 *  @author Rallaz
 */
-class DRW_LW_Conv{
+class DRW_LW_Conv {
 public:
     enum lineWidth {
         width00 = 0,       /*!< 0.00mm (dxf 0)*/
@@ -225,8 +255,8 @@ public:
         widthDefault = 31  /*!< by default (dxf -3) */
     };
 
-    static int lineWidth2dxfInt(enum lineWidth lw){
-        switch (lw){
+    static int lineWidth2dxfInt(enum lineWidth lw) {
+        switch (lw) {
         case widthByLayer:
             return -1;
         case widthByBlock:
@@ -287,11 +317,11 @@ public:
         return static_cast<int> (lw);
     }
 
-    static int lineWidth2dwgInt(enum lineWidth lw){
+    static int lineWidth2dwgInt(enum lineWidth lw) {
         return static_cast<int> (lw);
     }
 
-    static enum lineWidth dxfInt2lineWidth(int i){
+    static enum lineWidth dxfInt2lineWidth(int i) {
         if (i<0) {
             if (i==-1)
                 return widthByLayer;
@@ -352,7 +382,7 @@ public:
         return widthDefault;
     }
 
-    static enum lineWidth dwgInt2lineWidth(int i){
+    static enum lineWidth dwgInt2lineWidth(int i) {
         if ( (i>-1 && i<24) || (i>28 && i<32) ) {
             return static_cast<lineWidth> (i);
         }

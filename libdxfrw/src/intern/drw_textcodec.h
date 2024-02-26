@@ -12,12 +12,20 @@ public:
     ~DRW_TextCodec();
     std::string fromUtf8(std::string s);
     std::string toUtf8(std::string s);
-    int getVersion(){return version;}
+    int getVersion() {
+        return version;
+    }
     void setVersion(std::string *v);
-    void setVersion(int v){version = v;}
+    void setVersion(int v) {
+        version = v;
+    }
     void setCodePage(std::string *c);
-    void setCodePage(std::string c){setCodePage(&c);}
-    std::string getCodePage(){return cp;}
+    void setCodePage(std::string c) {
+        setCodePage(&c);
+    }
+    std::string getCodePage() {
+        return cp;
+    }
 
 private:
     std::string correctCodePage(const std::string& s);
@@ -31,10 +39,14 @@ private:
 class DRW_Converter
 {
 public:
-    DRW_Converter(const int *t, int l){table = t;
-                               cpLenght = l;}
-    virtual ~DRW_Converter(){}
-    virtual std::string fromUtf8(std::string *s) {return *s;}
+    DRW_Converter(const int *t, int l) {
+        table = t;
+        cpLenght = l;
+    }
+    virtual ~DRW_Converter() {}
+    virtual std::string fromUtf8(std::string *s) {
+        return *s;
+    }
     virtual std::string toUtf8(std::string *s);
     std::string encodeText(std::string stmp);
     std::string decodeText(int c);

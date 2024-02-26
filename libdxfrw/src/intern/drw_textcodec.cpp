@@ -18,14 +18,14 @@ DRW_TextCodec::~DRW_TextCodec() {
     delete conv;
 }
 
-void DRW_TextCodec::setVersion(std::string *v){
+void DRW_TextCodec::setVersion(std::string *v) {
     std::string versionStr = *v;
     if (versionStr == "AC1009" || versionStr == "AC1006") {
         version = DRW::AC1009;
         cp = "ANSI_1252";
         setCodePage(&cp);
     } else if (versionStr == "AC1012" || versionStr == "AC1014"
-             || versionStr == "AC1015" || versionStr == "AC1018") {
+               || versionStr == "AC1015" || versionStr == "AC1018") {
         version = DRW::AC1015;
         if (cp.empty()) { //codepage not set, initialize
             cp = "ANSI_1252";
@@ -37,7 +37,7 @@ void DRW_TextCodec::setVersion(std::string *v){
     }
 }
 
-void DRW_TextCodec::setCodePage(std::string *c){
+void DRW_TextCodec::setCodePage(std::string *c) {
     cp = correctCodePage(*c);
     delete conv;
     if (version == DRW::AC1009 || version == DRW::AC1015) {
@@ -45,7 +45,7 @@ void DRW_TextCodec::setCodePage(std::string *c){
             conv = new DRW_ConvTable(DRW_Table874, CPLENGHTCOMMON);
         else if (cp == "ANSI_932")
             conv = new DRW_Conv932Table(DRW_Table932, DRW_LeadTable932,
-                                         DRW_DoubleTable932, CPLENGHT932);
+                                        DRW_DoubleTable932, CPLENGHT932);
         else if (cp == "ANSI_936")
             conv = new DRW_ConvDBCSTable(DRW_Table936, DRW_LeadTable936,
                                          DRW_DoubleTable936, CPLENGHT936);
@@ -131,7 +131,7 @@ std::string DRW_ConvTable::fromUtf8(std::string *s) {
             j = i+l;
             i = j - 1;
             notFound = true;
-            for (int k=0; k<cpLenght; k++){
+            for (int k=0; k<cpLenght; k++) {
                 if(table[k] == code) {
                     result += CPOFFSET + k; //translate from table
                     notFound = false;
@@ -171,14 +171,14 @@ std::string DRW_ConvTable::toUtf8(std::string *s) {
     return res;
 }
 
-std::string DRW_Converter::encodeText(std::string stmp){
+std::string DRW_Converter::encodeText(std::string stmp) {
     int code;
     std::istringstream sd(stmp.substr(3,4));
     sd >> std::hex >> code;
     return encodeNum(code);
 }
 
-std::string DRW_Converter::decodeText(int c){
+std::string DRW_Converter::decodeText(int c) {
     std::string res = "\\U+";
     std::string num;
 #if defined(__APPLE__)
@@ -194,7 +194,7 @@ std::string DRW_Converter::decodeText(int c){
     return res;
 }
 
-std::string DRW_Converter::encodeNum(int c){
+std::string DRW_Converter::encodeNum(int c) {
     unsigned char ret[5];
     if (c < 128) { // 0-7F US-ASCII 7 bits
         ret[0] = c;
@@ -221,7 +221,7 @@ std::string DRW_Converter::encodeNum(int c){
 /** 's' is a string with at least 4 bytes lenght
 ** returned 'b' is byte lenght of encoded char: 2,3 or 4
 **/
-int DRW_Converter::decodeNum(std::string s, int *b){
+int DRW_Converter::decodeNum(std::string s, int *b) {
     int code= 0;
     unsigned char c = s.at(0);
     if ( (c& 0xE0)  == 0xC0) { //2 bytes
@@ -261,18 +261,18 @@ std::string DRW_ConvDBCSTable::fromUtf8(std::string *s) {
             j = i+l;
             i = j - 1;
             notFound = true;
-                for (int k=0; k<cpLenght; k++){
-                    if(doubleTable[k][1] == code) {
-                        int data = doubleTable[k][0];
-                        char d[3];
-                        d[0] = data >> 8;
-                        d[1] = data & 0xFF;
-                        d[2]= '\0';
-                        result += d; //translate from table
-                        notFound = false;
-                        break;
-                    }
+            for (int k=0; k<cpLenght; k++) {
+                if(doubleTable[k][1] == code) {
+                    int data = doubleTable[k][0];
+                    char d[3];
+                    d[0] = data >> 8;
+                    d[1] = data & 0xFF;
+                    d[2]= '\0';
+                    result += d; //translate from table
+                    notFound = false;
+                    break;
                 }
+            }
             if (notFound)
                 result += decodeText(code);
         } //direct conversion
@@ -300,7 +300,7 @@ std::string DRW_ConvDBCSTable::toUtf8(std::string *s) {
                 }
             } else
                 res +=c; //c!='\' ascii char write
-        } else if(c == 0x80 ){//1 byte table
+        } else if(c == 0x80 ) { //1 byte table
             notFound = false;
             res += encodeNum(0x20AC);//euro sign
         } else {//2 bytes
@@ -308,7 +308,7 @@ std::string DRW_ConvDBCSTable::toUtf8(std::string *s) {
             int code = (c << 8) | (unsigned char )(*it);
             int sta = leadTable[c-0x81];
             int end = leadTable[c-0x80];
-            for (int k=sta; k<end; k++){
+            for (int k=sta; k<end; k++) {
                 if(doubleTable[k][0] == code) {
                     res += encodeNum(doubleTable[k][1]); //translate from table
                     notFound = false;
@@ -345,8 +345,8 @@ std::string DRW_Conv932Table::fromUtf8(std::string *s) {
                 notFound = false;
             }
             if (notFound && ( code<0xF8 || (code>0x390 && code<0x542) ||
-                    (code>0x200F && code<0x9FA1) || code>0xF928 )) {
-                for (int k=0; k<cpLenght; k++){
+                              (code>0x200F && code<0x9FA1) || code>0xF928 )) {
+                for (int k=0; k<cpLenght; k++) {
                     if(doubleTable[k][1] == code) {
                         int data = doubleTable[k][0];
                         char d[3];
@@ -386,7 +386,7 @@ std::string DRW_Conv932Table::toUtf8(std::string *s) {
                 }
             } else
                 res +=c; //c!='\' ascii char write
-        } else if(c > 0xA0 && c < 0xE0 ){//1 byte table
+        } else if(c > 0xA0 && c < 0xE0 ) { //1 byte table
             notFound = false;
             res += encodeNum(c + CPOFFSET932); //translate from table
         } else {//2 bytes
@@ -397,12 +397,12 @@ std::string DRW_Conv932Table::toUtf8(std::string *s) {
             if (c > 0x80 && c < 0xA0) {
                 sta = DRW_LeadTable932[c-0x81];
                 end = DRW_LeadTable932[c-0x80];
-            } else if (c > 0xDF && c < 0xFD){
+            } else if (c > 0xDF && c < 0xFD) {
                 sta = DRW_LeadTable932[c-0xC1];
                 end = DRW_LeadTable932[c-0xC0];
             }
             if (end > 0) {
-                for (int k=sta; k<end; k++){
+                for (int k=sta; k<end; k++) {
                     if(DRW_DoubleTable932[k][0] == code) {
                         res += encodeNum(DRW_DoubleTable932[k][1]); //translate from table
                         notFound = false;
@@ -477,12 +477,12 @@ std::string DRW_TextCodec::correctCodePage(const std::string& s) {
         return "ANSI_950";
 
 //celtic
-/*    } else if (cp=="ISO8859-14") {
-       return "ISO8859-14";
-    } else if (cp=="TSCII") {
-        return "TSCII"; //tamil
-    } else if (cp=="UTF16") {
-        return "UTF16"; */
+        /*    } else if (cp=="ISO8859-14") {
+               return "ISO8859-14";
+            } else if (cp=="TSCII") {
+                return "TSCII"; //tamil
+            } else if (cp=="UTF16") {
+                return "UTF16"; */
 
     } else if (cp=="UTF-8" || cp=="UTF8" || cp=="UTF88-BIT") {
         return "UTF-8";

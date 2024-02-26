@@ -25,42 +25,42 @@ using std::string;
 
 namespace DRW {
 
-   //! Entity's type.
-    enum ETYPE {
-        POINT,
-        LINE,
-        CIRCLE,
-        ARC,
-        ELLIPSE,
-        TRACE,
-        SOLID,
-        BLOCK,
-        INSERT,
-        LWPOLYLINE,
-        POLYLINE,
-        VERTEX,
-        SPLINE,
-        HATCH,
-        TEXT,
-        MTEXT,
-        E3DFACE,
-        IMAGE,
-        LEADER,
-        DIMENSION,
-        DIMALIGNED,
-        DIMLINEAR,
-        DIMRADIAL,
-        DIMDIAMETRIC,
-        DIMANGULAR,
-        DIMANGULAR3P,
-        DIMORDINATE,
+//! Entity's type.
+enum ETYPE {
+    POINT,
+    LINE,
+    CIRCLE,
+    ARC,
+    ELLIPSE,
+    TRACE,
+    SOLID,
+    BLOCK,
+    INSERT,
+    LWPOLYLINE,
+    POLYLINE,
+    VERTEX,
+    SPLINE,
+    HATCH,
+    TEXT,
+    MTEXT,
+    E3DFACE,
+    IMAGE,
+    LEADER,
+    DIMENSION,
+    DIMALIGNED,
+    DIMLINEAR,
+    DIMRADIAL,
+    DIMDIAMETRIC,
+    DIMANGULAR,
+    DIMANGULAR3P,
+    DIMORDINATE,
 //        OVERLAYBOX,
 //        CONSTRUCTIONLINE,
-        RAY,
-        XLINE,
-        VIEWPORT,
-        UNKNOWN
-    };
+    RAY,
+    XLINE,
+    VIEWPORT,
+    UNKNOWN
+};
 
 }
 
@@ -142,7 +142,7 @@ public:
         thickness = 0;
     }
 
-    virtual void applyExtrusion(){}
+    virtual void applyExtrusion() {}
 
     void parseCode(int code, dxfReader *reader);
 
@@ -164,7 +164,7 @@ public:
         secPoint.z = 0;
     }
 
-    virtual void applyExtrusion(){}
+    virtual void applyExtrusion() {}
     void parseCode(int code, dxfReader *reader);
 
 public:
@@ -225,7 +225,9 @@ public:
         isccw = 1;
     }
 
-    virtual void applyExtrusion(){DRW_Circle::applyExtrusion();}
+    virtual void applyExtrusion() {
+        DRW_Circle::applyExtrusion();
+    }
     void parseCode(int code, dxfReader *reader);
 
 public:
@@ -305,7 +307,7 @@ public:
         invisibleflag = 0;
     }
 
-    virtual void applyExtrusion(){}
+    virtual void applyExtrusion() {}
     void parseCode(int code, dxfReader *reader);
 
 public:
@@ -327,7 +329,7 @@ public:
         name = "*U0";
     }
 
-    virtual void applyExtrusion(){}
+    virtual void applyExtrusion() {}
     void parseCode(int code, dxfReader *reader);
 
 public:
@@ -355,7 +357,9 @@ public:
         rowspace = 0;
     }
 
-    virtual void applyExtrusion(){DRW_Point::applyExtrusion();}
+    virtual void applyExtrusion() {
+        DRW_Point::applyExtrusion();
+    }
     void parseCode(int code, dxfReader *reader);
 
 public:
@@ -387,8 +391,8 @@ public:
     }
     ~DRW_LWPolyline() {
         while (!vertlist.empty()) {
-           vertlist.pop_back();
-         }
+            vertlist.pop_back();
+        }
     }
     virtual void applyExtrusion();
     void addVertex (DRW_Vertex2D v) {
@@ -430,22 +434,22 @@ public:
 class DRW_Text : public DRW_Line {
 public:
     //! Vertical alignments.
-        enum VAlign {
-            VBaseLine = 0,  /*!< Top = 0 */
-            VBottom,        /*!< Bottom = 1 */
-            VMiddle,        /*!< Middle = 2 */
-            VTop            /*!< Top = 3 */
-        };
+    enum VAlign {
+        VBaseLine = 0,  /*!< Top = 0 */
+        VBottom,        /*!< Bottom = 1 */
+        VMiddle,        /*!< Middle = 2 */
+        VTop            /*!< Top = 3 */
+    };
 
     //! Horizontal alignments.
-        enum HAlign {
-            HLeft = 0,     /*!< Left = 0 */
-            HCenter,       /*!< Centered = 1 */
-            HRight,        /*!< Right = 2 */
-            HAligned,      /*!< Aligned = 3 (if VAlign==0) */
-            HMiddle,       /*!< middle = 4 (if VAlign==0) */
-            HFit           /*!< fit into point = 5 (if VAlign==0) */
-        };
+    enum HAlign {
+        HLeft = 0,     /*!< Left = 0 */
+        HCenter,       /*!< Centered = 1 */
+        HRight,        /*!< Right = 2 */
+        HAligned,      /*!< Aligned = 3 (if VAlign==0) */
+        HMiddle,       /*!< middle = 4 (if VAlign==0) */
+        HFit           /*!< fit into point = 5 (if VAlign==0) */
+    };
 
     DRW_Text() {
         eType = DRW::TEXT;
@@ -458,7 +462,7 @@ public:
         alignV = VBaseLine;
     }
 
-    virtual void applyExtrusion(){} //RLZ TODO
+    virtual void applyExtrusion() {} //RLZ TODO
     void parseCode(int code, dxfReader *reader);
 
 public:
@@ -565,8 +569,8 @@ public:
     }
     ~DRW_Polyline() {
         while (!vertlist.empty()) {
-           vertlist.pop_back();
-         }
+            vertlist.pop_back();
+        }
     }
     void addVertex (DRW_Vertex v) {
         DRW_Vertex *vert = new DRW_Vertex();
@@ -620,7 +624,7 @@ public:
         while(!fitlist.empty()) delete fitlist.back(), fitlist.pop_back();
 
     }
-    virtual void applyExtrusion(){}
+    virtual void applyExtrusion() {}
 
     void parseCode(int code, dxfReader *reader);
 
@@ -665,12 +669,12 @@ public:
     }
 
     ~DRW_HatchLoop() {
-/*        while (!pollist.empty()) {
-           pollist.pop_back();
-         }*/
+        /*        while (!pollist.empty()) {
+                   pollist.pop_back();
+                 }*/
         while (!objlist.empty()) {
-           objlist.pop_back();
-         }
+            objlist.pop_back();
+        }
     }
 
     void update() {
@@ -706,15 +710,15 @@ public:
 
     ~DRW_Hatch() {
         while (!looplist.empty()) {
-           looplist.pop_back();
-         }
+            looplist.pop_back();
+        }
     }
 
     void appendLoop (DRW_HatchLoop *v) {
         looplist.push_back(v);
     }
 
-    virtual void applyExtrusion(){}
+    virtual void applyExtrusion() {}
     void parseCode(int code, dxfReader *reader);
 
 public:
@@ -732,7 +736,7 @@ public:
     std::vector<DRW_HatchLoop *> looplist;  /*!< polyline list */
 
 private:
-    void clearEntities(){
+    void clearEntities() {
         pt = line = NULL;
         pline = NULL;
         arc = NULL;
@@ -860,48 +864,120 @@ public:
     virtual ~DRW_Dimension() {}
 
     void parseCode(int code, dxfReader *reader);
-    virtual void applyExtrusion(){}
+    virtual void applyExtrusion() {}
 
-    DRW_Coord getDefPoint() const {return defPoint;}      /*!< Definition point, code 10, 20 & 30 */
-    void setDefPoint(const DRW_Coord p) {defPoint =p;}
-    DRW_Coord getTextPoint() const {return textPoint;}    /*!< Middle point of text, code 11, 21 & 31 */
-    void setTextPoint(const DRW_Coord p) {textPoint =p;}
-    string getStyle() const {return style;}               /*!< Dimension style, code 3 */
-    void setStyle(const string s) {style = s;}
-    int getAlign() const { return align;}                 /*!< attachment point, code 71 */
-    void setAlign(const int a) { align = a;}
-    int getTextLineStyle() const { return linesty;}       /*!< Dimension text line spacing style, code 72, default 1 */
-    void setTextLineStyle(const int l) { linesty = l;}
-    string getText() const {return text;}                 /*!< Dimension text explicitly entered by the user, code 1 */
-    void setText(const string t) {text = t;}
-    double getTextLineFactor() const { return linefactor;} /*!< Dimension text line spacing factor, code 41, default 1? */
-    void setTextLineFactor(const double l) { linefactor = l;}
-    double getDir() const { return rot;}                  /*!< rotation angle of the dimension text, code 53 (optional) default 0 */
-    void setDir(const double d) { rot = d;}
+    DRW_Coord getDefPoint() const {
+        return defPoint;   /*!< Definition point, code 10, 20 & 30 */
+    }
+    void setDefPoint(const DRW_Coord p) {
+        defPoint =p;
+    }
+    DRW_Coord getTextPoint() const {
+        return textPoint;   /*!< Middle point of text, code 11, 21 & 31 */
+    }
+    void setTextPoint(const DRW_Coord p) {
+        textPoint =p;
+    }
+    string getStyle() const {
+        return style;   /*!< Dimension style, code 3 */
+    }
+    void setStyle(const string s) {
+        style = s;
+    }
+    int getAlign() const {
+        return align;   /*!< attachment point, code 71 */
+    }
+    void setAlign(const int a) {
+        align = a;
+    }
+    int getTextLineStyle() const {
+        return linesty;   /*!< Dimension text line spacing style, code 72, default 1 */
+    }
+    void setTextLineStyle(const int l) {
+        linesty = l;
+    }
+    string getText() const {
+        return text;   /*!< Dimension text explicitly entered by the user, code 1 */
+    }
+    void setText(const string t) {
+        text = t;
+    }
+    double getTextLineFactor() const {
+        return linefactor;   /*!< Dimension text line spacing factor, code 41, default 1? */
+    }
+    void setTextLineFactor(const double l) {
+        linefactor = l;
+    }
+    double getDir() const {
+        return rot;   /*!< rotation angle of the dimension text, code 53 (optional) default 0 */
+    }
+    void setDir(const double d) {
+        rot = d;
+    }
 
-    DRW_Coord getExtrusion(){return extPoint;}            /*!< extrusion, code 210, 220 & 230 */
-    void setExtrusion(const DRW_Coord p) {extPoint =p;}
-    string getName(){return name;}                        /*!< Name of the block that contains the entities, code 2 */
-    void setName(const string s) {name = s;}
+    DRW_Coord getExtrusion() {
+        return extPoint;   /*!< extrusion, code 210, 220 & 230 */
+    }
+    void setExtrusion(const DRW_Coord p) {
+        extPoint =p;
+    }
+    string getName() {
+        return name;   /*!< Name of the block that contains the entities, code 2 */
+    }
+    void setName(const string s) {
+        name = s;
+    }
 //    int getType(){ return type;}                      /*!< Dimension type, code 70 */
 
 protected:
-    DRW_Coord getPt2() const {return clonePoint;}
-    void setPt2(const DRW_Coord p) {clonePoint= p;}
-    DRW_Coord getPt3() const {return def1;}
-    void setPt3(const DRW_Coord p) {def1= p;}
-    DRW_Coord getPt4() const {return def2;}
-    void setPt4(const DRW_Coord p) {def2= p;}
-    DRW_Coord getPt5() const {return circlePoint;}
-    void setPt5(const DRW_Coord p) {circlePoint= p;}
-    DRW_Coord getPt6() const {return arcPoint;}
-    void setPt6(const DRW_Coord p) {arcPoint= p;}
-    double getAn50() const {return angle;}      /*!< Angle of rotated, horizontal, or vertical dimensions, code 50 */
-    void setAn50(const double d) {angle = d;}
-    double getOb52() const {return oblique;}    /*!< oblique angle, code 52 */
-    void setOb52(const double d) {oblique = d;}
-    double getRa40() const {return length;}    /*!< Leader length, code 40 */
-    void setRa40(const double d) {length = d;}
+    DRW_Coord getPt2() const {
+        return clonePoint;
+    }
+    void setPt2(const DRW_Coord p) {
+        clonePoint= p;
+    }
+    DRW_Coord getPt3() const {
+        return def1;
+    }
+    void setPt3(const DRW_Coord p) {
+        def1= p;
+    }
+    DRW_Coord getPt4() const {
+        return def2;
+    }
+    void setPt4(const DRW_Coord p) {
+        def2= p;
+    }
+    DRW_Coord getPt5() const {
+        return circlePoint;
+    }
+    void setPt5(const DRW_Coord p) {
+        circlePoint= p;
+    }
+    DRW_Coord getPt6() const {
+        return arcPoint;
+    }
+    void setPt6(const DRW_Coord p) {
+        arcPoint= p;
+    }
+    double getAn50() const {
+        return angle;   /*!< Angle of rotated, horizontal, or vertical dimensions, code 50 */
+    }
+    void setAn50(const double d) {
+        angle = d;
+    }
+    double getOb52() const {
+        return oblique;   /*!< oblique angle, code 52 */
+    }
+    void setOb52(const double d) {
+        oblique = d;
+    }
+    double getRa40() const {
+        return length;   /*!< Leader length, code 40 */
+    }
+    void setRa40(const double d) {
+        length = d;
+    }
 public:
     int type;                  /*!< Dimension type, code 70 */
 private:
@@ -936,22 +1012,38 @@ private:
 */
 class DRW_DimAligned : public DRW_Dimension {
 public:
-    DRW_DimAligned(){
+    DRW_DimAligned() {
         eType = DRW::DIMALIGNED;
     }
     DRW_DimAligned(const DRW_Dimension& d): DRW_Dimension(d) {
         eType = DRW::DIMALIGNED;
     }
 
-    DRW_Coord getClonepoint() const {return getPt2();}      /*!< Insertion for clones (Baseline & Continue), 12, 22 & 32 */
-    void setClonePoint(DRW_Coord c){setPt2(c);}
+    DRW_Coord getClonepoint() const {
+        return getPt2();   /*!< Insertion for clones (Baseline & Continue), 12, 22 & 32 */
+    }
+    void setClonePoint(DRW_Coord c) {
+        setPt2(c);
+    }
 
-    DRW_Coord getDimPoint() const {return getDefPoint();}   /*!< dim line location point, code 10, 20 & 30 */
-    void setDimPoint(const DRW_Coord p){setDefPoint(p);}
-    DRW_Coord getDef1Point() const {return getPt3();}       /*!< Definition point 1, code 13, 23 & 33 */
-    void setDef1Point(const DRW_Coord p) {setPt3(p);}
-    DRW_Coord getDef2Point() const {return getPt4();}       /*!< Definition point 2, code 14, 24 & 34 */
-    void setDef2Point(const DRW_Coord p) {setPt4(p);}
+    DRW_Coord getDimPoint() const {
+        return getDefPoint();   /*!< dim line location point, code 10, 20 & 30 */
+    }
+    void setDimPoint(const DRW_Coord p) {
+        setDefPoint(p);
+    }
+    DRW_Coord getDef1Point() const {
+        return getPt3();   /*!< Definition point 1, code 13, 23 & 33 */
+    }
+    void setDef1Point(const DRW_Coord p) {
+        setPt3(p);
+    }
+    DRW_Coord getDef2Point() const {
+        return getPt4();   /*!< Definition point 2, code 14, 24 & 34 */
+    }
+    void setDef2Point(const DRW_Coord p) {
+        setPt4(p);
+    }
 };
 
 //! Class to handle  linear or rotated dimension entity
@@ -968,10 +1060,18 @@ public:
         eType = DRW::DIMLINEAR;
     }
 
-    double getAngle() const {return getAn50();}          /*!< Angle of rotated, horizontal, or vertical dimensions, code 50 */
-    void setAngle(const double d) {setAn50(d);}
-    double getOblique() const {return getOb52();}      /*!< oblique angle, code 52 */
-    void setOblique(const double d) {setOb52(d);}
+    double getAngle() const {
+        return getAn50();   /*!< Angle of rotated, horizontal, or vertical dimensions, code 50 */
+    }
+    void setAngle(const double d) {
+        setAn50(d);
+    }
+    double getOblique() const {
+        return getOb52();   /*!< oblique angle, code 52 */
+    }
+    void setOblique(const double d) {
+        setOb52(d);
+    }
 };
 
 //! Class to handle radial dimension entity
@@ -988,12 +1088,24 @@ public:
         eType = DRW::DIMRADIAL;
     }
 
-    DRW_Coord getCenterPoint() const {return getDefPoint();}   /*!< center point, code 10, 20 & 30 */
-    void setCenterPoint(const DRW_Coord p){setDefPoint(p);}
-    DRW_Coord getDiameterPoint() const {return getPt5();}      /*!< Definition point for radius, code 15, 25 & 35 */
-    void setDiameterPoint(const DRW_Coord p){setPt5(p);}
-    double getLeaderLength() const {return getRa40();}         /*!< Leader length, code 40 */
-    void setLeaderLength(const double d) {setRa40(d);}
+    DRW_Coord getCenterPoint() const {
+        return getDefPoint();   /*!< center point, code 10, 20 & 30 */
+    }
+    void setCenterPoint(const DRW_Coord p) {
+        setDefPoint(p);
+    }
+    DRW_Coord getDiameterPoint() const {
+        return getPt5();   /*!< Definition point for radius, code 15, 25 & 35 */
+    }
+    void setDiameterPoint(const DRW_Coord p) {
+        setPt5(p);
+    }
+    double getLeaderLength() const {
+        return getRa40();   /*!< Leader length, code 40 */
+    }
+    void setLeaderLength(const double d) {
+        setRa40(d);
+    }
 };
 
 //! Class to handle radial dimension entity
@@ -1010,12 +1122,24 @@ public:
         eType = DRW::DIMDIAMETRIC;
     }
 
-    DRW_Coord getDiameter1Point() const {return getPt5();}      /*!< First definition point for diameter, code 15, 25 & 35 */
-    void setDiameter1Point(const DRW_Coord p){setPt5(p);}
-    DRW_Coord getDiameter2Point() const {return getDefPoint();} /*!< Oposite point for diameter, code 10, 20 & 30 */
-    void setDiameter2Point(const DRW_Coord p){setDefPoint(p);}
-    double getLeaderLength() const {return getRa40();}          /*!< Leader length, code 40 */
-    void setLeaderLength(const double d) {setRa40(d);}
+    DRW_Coord getDiameter1Point() const {
+        return getPt5();   /*!< First definition point for diameter, code 15, 25 & 35 */
+    }
+    void setDiameter1Point(const DRW_Coord p) {
+        setPt5(p);
+    }
+    DRW_Coord getDiameter2Point() const {
+        return getDefPoint();   /*!< Oposite point for diameter, code 10, 20 & 30 */
+    }
+    void setDiameter2Point(const DRW_Coord p) {
+        setDefPoint(p);
+    }
+    double getLeaderLength() const {
+        return getRa40();   /*!< Leader length, code 40 */
+    }
+    void setLeaderLength(const double d) {
+        setRa40(d);
+    }
 };
 
 //! Class to handle angular dimension entity
@@ -1032,16 +1156,36 @@ public:
         eType = DRW::DIMANGULAR;
     }
 
-    DRW_Coord getFirstLine1() const {return getPt3();}       /*!< Definition point line 1-1, code 13, 23 & 33 */
-    void setFirstLine1(const DRW_Coord p) {setPt3(p);}
-    DRW_Coord getFirstLine2() const {return getPt4();}       /*!< Definition point line 1-2, code 14, 24 & 34 */
-    void setFirstLine2(const DRW_Coord p) {setPt4(p);}
-    DRW_Coord getSecondLine1() const {return getPt5();}      /*!< Definition point line 2-1, code 15, 25 & 35 */
-    void setSecondLine1(const DRW_Coord p) {setPt5(p);}
-    DRW_Coord getSecondLine2() const {return getDefPoint();} /*!< Definition point line 2-2, code 10, 20 & 30 */
-    void setSecondLine2(const DRW_Coord p){setDefPoint(p);}
-    DRW_Coord getDimPoint() const {return getPt6();}         /*!< Dimension definition point, code 16, 26 & 36 */
-    void setDimPoint(const DRW_Coord p) {setPt6(p);}
+    DRW_Coord getFirstLine1() const {
+        return getPt3();   /*!< Definition point line 1-1, code 13, 23 & 33 */
+    }
+    void setFirstLine1(const DRW_Coord p) {
+        setPt3(p);
+    }
+    DRW_Coord getFirstLine2() const {
+        return getPt4();   /*!< Definition point line 1-2, code 14, 24 & 34 */
+    }
+    void setFirstLine2(const DRW_Coord p) {
+        setPt4(p);
+    }
+    DRW_Coord getSecondLine1() const {
+        return getPt5();   /*!< Definition point line 2-1, code 15, 25 & 35 */
+    }
+    void setSecondLine1(const DRW_Coord p) {
+        setPt5(p);
+    }
+    DRW_Coord getSecondLine2() const {
+        return getDefPoint();   /*!< Definition point line 2-2, code 10, 20 & 30 */
+    }
+    void setSecondLine2(const DRW_Coord p) {
+        setDefPoint(p);
+    }
+    DRW_Coord getDimPoint() const {
+        return getPt6();   /*!< Dimension definition point, code 16, 26 & 36 */
+    }
+    void setDimPoint(const DRW_Coord p) {
+        setPt6(p);
+    }
 };
 
 
@@ -1059,14 +1203,30 @@ public:
         eType = DRW::DIMANGULAR3P;
     }
 
-    DRW_Coord getFirstLine() const {return getPt3();}       /*!< Definition point line 1, code 13, 23 & 33 */
-    void setFirstLine(const DRW_Coord p) {setPt3(p);}
-    DRW_Coord getSecondLine() const {return getPt4();}       /*!< Definition point line 2, code 14, 24 & 34 */
-    void setSecondLine(const DRW_Coord p) {setPt4(p);}
-    DRW_Coord getVertexPoint() const {return getPt5();}      /*!< Vertex point, code 15, 25 & 35 */
-    void SetVertexPoint(const DRW_Coord p) {setPt5(p);}
-    DRW_Coord getDimPoint() const {return getDefPoint();}    /*!< Dimension definition point, code 10, 20 & 30 */
-    void setDimPoint(const DRW_Coord p) {setDefPoint(p);}
+    DRW_Coord getFirstLine() const {
+        return getPt3();   /*!< Definition point line 1, code 13, 23 & 33 */
+    }
+    void setFirstLine(const DRW_Coord p) {
+        setPt3(p);
+    }
+    DRW_Coord getSecondLine() const {
+        return getPt4();   /*!< Definition point line 2, code 14, 24 & 34 */
+    }
+    void setSecondLine(const DRW_Coord p) {
+        setPt4(p);
+    }
+    DRW_Coord getVertexPoint() const {
+        return getPt5();   /*!< Vertex point, code 15, 25 & 35 */
+    }
+    void SetVertexPoint(const DRW_Coord p) {
+        setPt5(p);
+    }
+    DRW_Coord getDimPoint() const {
+        return getDefPoint();   /*!< Dimension definition point, code 10, 20 & 30 */
+    }
+    void setDimPoint(const DRW_Coord p) {
+        setDefPoint(p);
+    }
 };
 
 //! Class to handle ordinate dimension entity
@@ -1083,12 +1243,24 @@ public:
         eType = DRW::DIMORDINATE;
     }
 
-    DRW_Coord getOriginPoint() const {return getDefPoint();}   /*!< Origin definition point, code 10, 20 & 30 */
-    void setOriginPoint(const DRW_Coord p) {setDefPoint(p);}
-    DRW_Coord getFirstLine() const {return getPt3();}          /*!< Feature location point, code 13, 23 & 33 */
-    void setFirstLine(const DRW_Coord p) {setPt3(p);}
-    DRW_Coord getSecondLine() const {return getPt4();}         /*!< Leader end point, code 14, 24 & 34 */
-    void setSecondLine(const DRW_Coord p) {setPt4(p);}
+    DRW_Coord getOriginPoint() const {
+        return getDefPoint();   /*!< Origin definition point, code 10, 20 & 30 */
+    }
+    void setOriginPoint(const DRW_Coord p) {
+        setDefPoint(p);
+    }
+    DRW_Coord getFirstLine() const {
+        return getPt3();   /*!< Feature location point, code 13, 23 & 33 */
+    }
+    void setFirstLine(const DRW_Coord p) {
+        setPt3(p);
+    }
+    DRW_Coord getSecondLine() const {
+        return getPt4();   /*!< Leader end point, code 14, 24 & 34 */
+    }
+    void setSecondLine(const DRW_Coord p) {
+        setPt4(p);
+    }
 };
 
 
@@ -1109,11 +1281,11 @@ public:
     }
     ~DRW_Leader() {
         while (!vertexlist.empty()) {
-           vertexlist.pop_back();
+            vertexlist.pop_back();
         }
     }
 
-    virtual void applyExtrusion(){}
+    virtual void applyExtrusion() {}
     void parseCode(int code, dxfReader *reader);
 
 public:
@@ -1155,7 +1327,7 @@ public:
         centerPY = 97.5;
     }
 
-    virtual void applyExtrusion(){}
+    virtual void applyExtrusion() {}
     void parseCode(int code, dxfReader *reader);
 
 public:

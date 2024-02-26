@@ -20,7 +20,7 @@
 *   Calculate arbitary axis for apply extrusions
 *  @author Rallaz
 */
-void DRW_Entity::calculateAxis(DRW_Coord extPoint){
+void DRW_Entity::calculateAxis(DRW_Coord extPoint) {
     if (fabs(extPoint.x) < 0.015625 && fabs(extPoint.y) < 0.015625) {
         extAxisX.x = extPoint.z;
         extAxisX.y = 0;
@@ -41,7 +41,7 @@ void DRW_Entity::calculateAxis(DRW_Coord extPoint){
 *   apply extrusion in a point using arbitary axis (previous calculated)
 *  @author Rallaz
 */
-void DRW_Entity::extrudePoint(DRW_Coord extPoint, DRW_Coord *point){
+void DRW_Entity::extrudePoint(DRW_Coord extPoint, DRW_Coord *point) {
     double px, py, pz;
     px = (extAxisX.x*point->x)+(extAxisY.x*point->y)+(extPoint.x*point->z);
     py = (extAxisX.y*point->x)+(extAxisY.y*point->y)+(extPoint.y*point->z);
@@ -52,7 +52,7 @@ void DRW_Entity::extrudePoint(DRW_Coord extPoint, DRW_Coord *point){
     point->z = pz;
 }
 
-void DRW_Entity::parseCode(int code, dxfReader *reader){
+void DRW_Entity::parseCode(int code, dxfReader *reader) {
     switch (code) {
     case 5:
         handle = reader->getHandleString();
@@ -92,7 +92,7 @@ void DRW_Entity::parseCode(int code, dxfReader *reader){
     }
 }
 
-void DRW_Point::parseCode(int code, dxfReader *reader){
+void DRW_Point::parseCode(int code, dxfReader *reader) {
     switch (code) {
     case 10:
         basePoint.x = reader->getDouble();
@@ -122,7 +122,7 @@ void DRW_Point::parseCode(int code, dxfReader *reader){
     }
 }
 
-void DRW_Line::parseCode(int code, dxfReader *reader){
+void DRW_Line::parseCode(int code, dxfReader *reader) {
     switch (code) {
     case 11:
         secPoint.x = reader->getDouble();
@@ -139,14 +139,14 @@ void DRW_Line::parseCode(int code, dxfReader *reader){
     }
 }
 
-void DRW_Circle::applyExtrusion(){
+void DRW_Circle::applyExtrusion() {
     if (haveExtrusion) {
         calculateAxis(extPoint);
         extrudePoint(extPoint, &basePoint);
     }
 }
 
-void DRW_Circle::parseCode(int code, dxfReader *reader){
+void DRW_Circle::parseCode(int code, dxfReader *reader) {
     switch (code) {
     case 40:
         radious = reader->getDouble();
@@ -157,7 +157,7 @@ void DRW_Circle::parseCode(int code, dxfReader *reader){
     }
 }
 
-void DRW_Arc::parseCode(int code, dxfReader *reader){
+void DRW_Arc::parseCode(int code, dxfReader *reader) {
     switch (code) {
     case 50:
         staangle = reader->getDouble()/ ARAD;
@@ -171,7 +171,7 @@ void DRW_Arc::parseCode(int code, dxfReader *reader){
     }
 }
 
-void DRW_Ellipse::parseCode(int code, dxfReader *reader){
+void DRW_Ellipse::parseCode(int code, dxfReader *reader) {
     switch (code) {
     case 40:
         ratio = reader->getDouble();
@@ -189,21 +189,21 @@ void DRW_Ellipse::parseCode(int code, dxfReader *reader){
 }
 
 //if ratio > 1 minor axis are greather than major axis, correct it
-void DRW_Ellipse::correctAxis(){
+void DRW_Ellipse::correctAxis() {
     bool complete = false;
     if (staparam == endparam) {
         staparam = 0.0;
         endparam = M_PIx2; //2*M_PI;
         complete = true;
     }
-    if (ratio > 1){
+    if (ratio > 1) {
         if ( fabs(endparam - staparam - M_PIx2) < 1.0e-10)
             complete = true;
         double incX = secPoint.x;
         secPoint.x = -(secPoint.y * ratio);
         secPoint.y = incX*ratio;
         ratio = 1/ratio;
-        if (!complete){
+        if (!complete) {
             if (staparam < M_PI_2)
                 staparam += M_PI *2;
             if (endparam < M_PI_2)
@@ -214,7 +214,7 @@ void DRW_Ellipse::correctAxis(){
     }
 }
 
-void DRW_Ellipse::toPolyline(DRW_Polyline *pol){
+void DRW_Ellipse::toPolyline(DRW_Polyline *pol) {
     double radMajor, radMinor, cosRot, sinRot, incAngle, curAngle;
     double cosCurr, sinCurr;
     radMajor = sqrt(secPoint.x*secPoint.x + secPoint.y*secPoint.y);
@@ -237,7 +237,7 @@ void DRW_Ellipse::toPolyline(DRW_Polyline *pol){
         pol->addVertex( DRW_Vertex(x, y, 0.0, 0.0));
         curAngle = (++i)*incAngle;
     } while (i<128);
-    if ( fabs(endparam - staparam - M_PIx2) < 1.0e-10){
+    if ( fabs(endparam - staparam - M_PIx2) < 1.0e-10) {
         pol->flags = 1;
     }
     pol->layer = this->layer;
@@ -246,7 +246,7 @@ void DRW_Ellipse::toPolyline(DRW_Polyline *pol){
     pol->lWeight = this->lWeight;
 }
 
-void DRW_Trace::applyExtrusion(){
+void DRW_Trace::applyExtrusion() {
     if (haveExtrusion) {
         calculateAxis(extPoint);
         extrudePoint(extPoint, &basePoint);
@@ -256,7 +256,7 @@ void DRW_Trace::applyExtrusion(){
     }
 }
 
-void DRW_Trace::parseCode(int code, dxfReader *reader){
+void DRW_Trace::parseCode(int code, dxfReader *reader) {
     switch (code) {
     case 12:
         thirdPoint.x = reader->getDouble();
@@ -282,11 +282,11 @@ void DRW_Trace::parseCode(int code, dxfReader *reader){
     }
 }
 
-void DRW_Solid::parseCode(int code, dxfReader *reader){
-        DRW_Trace::parseCode(code, reader);
+void DRW_Solid::parseCode(int code, dxfReader *reader) {
+    DRW_Trace::parseCode(code, reader);
 }
 
-void DRW_3Dface::parseCode(int code, dxfReader *reader){
+void DRW_3Dface::parseCode(int code, dxfReader *reader) {
     switch (code) {
     case 70:
         invisibleflag = reader->getInt32();
@@ -297,7 +297,7 @@ void DRW_3Dface::parseCode(int code, dxfReader *reader){
     }
 }
 
-void DRW_Block::parseCode(int code, dxfReader *reader){
+void DRW_Block::parseCode(int code, dxfReader *reader) {
     switch (code) {
     case 2:
         name = reader->getUtf8String();
@@ -311,7 +311,7 @@ void DRW_Block::parseCode(int code, dxfReader *reader){
     }
 }
 
-void DRW_Insert::parseCode(int code, dxfReader *reader){
+void DRW_Insert::parseCode(int code, dxfReader *reader) {
     switch (code) {
     case 2:
         name = reader->getUtf8String();
@@ -346,7 +346,7 @@ void DRW_Insert::parseCode(int code, dxfReader *reader){
     }
 }
 
-void DRW_LWPolyline::applyExtrusion(){
+void DRW_LWPolyline::applyExtrusion() {
     if (haveExtrusion) {
         calculateAxis(extPoint);
         for (unsigned int i=0; i<vertlist.size(); i++) {
@@ -359,13 +359,14 @@ void DRW_LWPolyline::applyExtrusion(){
     }
 }
 
-void DRW_LWPolyline::parseCode(int code, dxfReader *reader){
+void DRW_LWPolyline::parseCode(int code, dxfReader *reader) {
     switch (code) {
     case 10: {
         vertex = new DRW_Vertex2D();
         vertlist.push_back(vertex);
         vertex->x = reader->getDouble();
-        break; }
+        break;
+    }
     case 20:
         if(vertex != NULL)
             vertex->y = reader->getDouble();
@@ -414,7 +415,7 @@ void DRW_LWPolyline::parseCode(int code, dxfReader *reader){
     }
 }
 
-void DRW_Text::parseCode(int code, dxfReader *reader){
+void DRW_Text::parseCode(int code, dxfReader *reader) {
     switch (code) {
     case 40:
         height = reader->getDouble();
@@ -449,7 +450,7 @@ void DRW_Text::parseCode(int code, dxfReader *reader){
     }
 }
 
-void DRW_MText::parseCode(int code, dxfReader *reader){
+void DRW_MText::parseCode(int code, dxfReader *reader) {
     switch (code) {
     case 1:
         text += reader->getString();
@@ -471,13 +472,13 @@ void DRW_MText::parseCode(int code, dxfReader *reader){
     }
 }
 
-void DRW_MText::updateAngle(){
+void DRW_MText::updateAngle() {
     if (haveXAxis) {
-            angle = atan2(secPoint.y, secPoint.x)*180/M_PI;
+        angle = atan2(secPoint.y, secPoint.x)*180/M_PI;
     }
 }
 
-void DRW_Polyline::parseCode(int code, dxfReader *reader){
+void DRW_Polyline::parseCode(int code, dxfReader *reader) {
     switch (code) {
     case 70:
         flags = reader->getInt32();
@@ -509,7 +510,7 @@ void DRW_Polyline::parseCode(int code, dxfReader *reader){
     }
 }
 
-void DRW_Vertex::parseCode(int code, dxfReader *reader){
+void DRW_Vertex::parseCode(int code, dxfReader *reader) {
     switch (code) {
     case 70:
         flags = reader->getInt32();
@@ -547,7 +548,7 @@ void DRW_Vertex::parseCode(int code, dxfReader *reader){
     }
 }
 
-void DRW_Hatch::parseCode(int code, dxfReader *reader){
+void DRW_Hatch::parseCode(int code, dxfReader *reader) {
     switch (code) {
     case 2:
         name = reader->getUtf8String();
@@ -559,15 +560,15 @@ void DRW_Hatch::parseCode(int code, dxfReader *reader){
         associative = reader->getInt32();
         break;
     case 72:        /*edge type*/
-        if (ispol){ //if is polyline is a as_bulge flag
+        if (ispol) { //if is polyline is a as_bulge flag
             break;
-        } else if (reader->getInt32() == 1){ //line
+        } else if (reader->getInt32() == 1) { //line
             addLine();
-        } else if (reader->getInt32() == 2){ //arc
+        } else if (reader->getInt32() == 2) { //arc
             addArc();
-        } else if (reader->getInt32() == 3){ //elliptic arc
+        } else if (reader->getInt32() == 3) { //elliptic arc
             addEllipse();
-        } else if (reader->getInt32() == 4){ //spline
+        } else if (reader->getInt32() == 4) { //spline
             addSpline();
         }
         break;
@@ -654,7 +655,7 @@ void DRW_Hatch::parseCode(int code, dxfReader *reader){
     }
 }
 
-void DRW_Spline::parseCode(int code, dxfReader *reader){
+void DRW_Spline::parseCode(int code, dxfReader *reader) {
     switch (code) {
     case 210:
         ex = reader->getDouble();
@@ -711,7 +712,8 @@ void DRW_Spline::parseCode(int code, dxfReader *reader){
         controlpoint = new DRW_Coord();
         controllist.push_back(controlpoint);
         controlpoint->x = reader->getDouble();
-        break; }
+        break;
+    }
     case 20:
         if(controlpoint != NULL)
             controlpoint->y = reader->getDouble();
@@ -724,7 +726,8 @@ void DRW_Spline::parseCode(int code, dxfReader *reader){
         fitpoint = new DRW_Coord();
         fitlist.push_back(fitpoint);
         fitpoint->x = reader->getDouble();
-        break; }
+        break;
+    }
     case 21:
         if(fitpoint != NULL)
             fitpoint->y = reader->getDouble();
@@ -744,7 +747,7 @@ void DRW_Spline::parseCode(int code, dxfReader *reader){
     }
 }
 
-void DRW_Image::parseCode(int code, dxfReader *reader){
+void DRW_Image::parseCode(int code, dxfReader *reader) {
     switch (code) {
     case 12:
         vx = reader->getDouble();
@@ -782,7 +785,7 @@ void DRW_Image::parseCode(int code, dxfReader *reader){
     }
 }
 
-void DRW_Dimension::parseCode(int code, dxfReader *reader){
+void DRW_Dimension::parseCode(int code, dxfReader *reader) {
     switch (code) {
     case 1:
         text = reader->getUtf8String();
@@ -880,16 +883,16 @@ void DRW_Dimension::parseCode(int code, dxfReader *reader){
     case 40:
         length = reader->getDouble();
         break;
-/*    case 51:
-        hdir = reader->getDouble();
-        break;*/
+    /*    case 51:
+            hdir = reader->getDouble();
+            break;*/
     default:
         DRW_Entity::parseCode(code, reader);
         break;
     }
 }
 
-void DRW_Leader::parseCode(int code, dxfReader *reader){
+void DRW_Leader::parseCode(int code, dxfReader *reader) {
     switch (code) {
     case 3:
         style = reader->getUtf8String();
@@ -925,7 +928,8 @@ void DRW_Leader::parseCode(int code, dxfReader *reader){
         vertexpoint = new DRW_Coord();
         vertexlist.push_back(vertexpoint);
         vertexpoint->x = reader->getDouble();
-        break; }
+        break;
+    }
     case 20:
         if(vertexpoint != NULL)
             vertexpoint->y = reader->getDouble();
@@ -979,7 +983,7 @@ void DRW_Leader::parseCode(int code, dxfReader *reader){
     }
 }
 
-void DRW_Viewport::parseCode(int code, dxfReader *reader){
+void DRW_Viewport::parseCode(int code, dxfReader *reader) {
     switch (code) {
     case 40:
         pswidth = reader->getDouble();
@@ -995,7 +999,8 @@ void DRW_Viewport::parseCode(int code, dxfReader *reader){
         break;
     case 12: {
         centerPX = reader->getDouble();
-        break; }
+        break;
+    }
     case 22:
         centerPY = reader->getDouble();
         break;

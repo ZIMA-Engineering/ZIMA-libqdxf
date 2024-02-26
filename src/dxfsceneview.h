@@ -37,9 +37,9 @@ public slots:
 
 protected:
     void wheelEvent(QWheelEvent* event);
- /*   void mousePressEvent(QMouseEvent *event);
-    void mouseReleaseEvent(QMouseEvent *event);
-    void mouseMoveEvent(QMouseEvent *event);*/
+    /*   void mousePressEvent(QMouseEvent *event);
+       void mouseReleaseEvent(QMouseEvent *event);
+       void mouseMoveEvent(QMouseEvent *event);*/
 
 };
 

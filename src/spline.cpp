@@ -140,7 +140,7 @@ void Spline::update(QList<QLineF> &lines) {
  * Generates a rational B-spline curve using a uniform open knot vector.
  */
 void Spline::rbspline(int npts, int k, int p1,
-                         double b[], double h[], double p[]) {
+                      double b[], double h[], double p[]) {
 
     int i,j,icount,jcount;
     int i1;
@@ -222,7 +222,7 @@ void Spline::knotu(int num, int order, int knotVector[]) {
 
 
 void Spline::rbsplinu(int npts, int k, int p1,
-                         double b[], double h[], double p[]) {
+                      double b[], double h[], double p[]) {
 
     int i,j,icount,jcount;
     int i1;
@@ -319,7 +319,7 @@ void Spline::rbsplinu(int npts, int k, int p1,
  * Generates rational B-spline basis functions for an open knot vector.
  */
 void Spline::rbasis(int c, double t, int npts,
-                       int x[], double h[], double r[]) {
+                    int x[], double h[], double r[]) {
 
     int nplusc;
     int i,k;
