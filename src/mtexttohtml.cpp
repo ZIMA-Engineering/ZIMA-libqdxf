@@ -17,15 +17,15 @@
 */
 
 #include "mtexttohtml.h"
-#include <QRegExp>
+#include <QRegularExpression>
 #include <QTextDocument>
 #include <QTextCursor>
 #include <QDebug>
 
 QString MTextToHTML::convert(QString mtext)
 {
-    QRegExp font("f(.+)\\|b(.)\\|i(.)\\|c.+\\|p.+;");
-    font.setMinimal(true);
+    // Capture font family, bold flag, and italic flag (non-greedy for the font name).
+    QRegularExpression font(QStringLiteral("f(.+?)\\|b(.)\\|i(.)\\|c.+\\|p.+;"));
 
     //mtext = "{\\fArial|b0|i0|c238|p34;Mezní úchylka\\PISO 2768 - mK}";
     //mtext = "Mezní úchylka\\PISO 2768 - mK";
@@ -37,7 +37,7 @@ QString MTextToHTML::convert(QString mtext)
 
     QTextCharFormat format;
 
-    QRegExp onechars("[LlOoKkP\\\\]");
+    QRegularExpression onechars(QStringLiteral("[LlOoKkP\\\\]"));
 
     bool istag = false;
     QString tag;
@@ -60,7 +60,7 @@ QString MTextToHTML::convert(QString mtext)
 
         if(istag && tag.length() == 1)
         {
-            if(onechars.exactMatch(tag))
+            if(onechars.match(tag).hasMatch())
             {
                 switch( tag[0].toLatin1() )
                 {
@@ -110,12 +110,13 @@ QString MTextToHTML::convert(QString mtext)
 
                 qDebug() << "TAG: " << tag;
 
-                if(font.indexIn(tag) != -1)
+                auto fontMatch = font.match(tag);
+                if(fontMatch.hasMatch())
                 {
-                    // capturedTexts: [1] font family [2] bold [3] italic
-                    format.setFontFamily(font.capturedTexts()[1]);
-                    format.setFontWeight( font.capturedTexts()[2] == "1" ? QFont::Bold : QFont::Normal);
-                    format.setFontItalic(font.capturedTexts()[3].toInt());
+                    // captured texts: [1] font family [2] bold [3] italic
+                    format.setFontFamily(fontMatch.captured(1));
+                    format.setFontWeight( fontMatch.captured(2) == "1" ? QFont::Bold : QFont::Normal);
+                    format.setFontItalic(fontMatch.captured(3).toInt());
                 }
 
                 i = index;
