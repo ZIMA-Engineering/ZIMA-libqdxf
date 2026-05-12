@@ -17,134 +17,199 @@
 */
 
 #include "mtexttohtml.h"
-#include <QRegularExpression>
-#include <QTextDocument>
-#include <QTextCursor>
-#include <QDebug>
+#include <functional>
+#include <QStringList>
+#include <QVector>
+
+namespace {
+
+struct TextFormat
+{
+    bool underline = false;
+    bool overline = false;
+    bool strikeOut = false;
+    bool bold = false;
+    bool italic = false;
+    QString fontFamily;
+};
+
+QString cssForFormat(const TextFormat &format)
+{
+    QStringList styles;
+    QStringList decorations;
+
+    if (format.underline)
+        decorations << QStringLiteral("underline");
+    if (format.overline)
+        decorations << QStringLiteral("overline");
+    if (format.strikeOut)
+        decorations << QStringLiteral("line-through");
+
+    if (!decorations.isEmpty())
+        styles << QStringLiteral("text-decoration:%1").arg(decorations.join(QLatin1Char(' ')));
+    if (format.bold)
+        styles << QStringLiteral("font-weight:600");
+    if (format.italic)
+        styles << QStringLiteral("font-style:italic");
+    if (!format.fontFamily.isEmpty())
+    {
+        QString family = format.fontFamily;
+        family.replace(QLatin1Char('\''), QStringLiteral("\\'"));
+        styles << QStringLiteral("font-family:'%1'").arg(family.toHtmlEscaped());
+    }
+
+    return styles.join(QLatin1Char(';'));
+}
+
+QString readableStackText(QString stackText)
+{
+    stackText.replace(QLatin1Char('#'), QLatin1Char('/'));
+    stackText.replace(QLatin1Char('^'), QLatin1Char('/'));
+    return stackText;
+}
+
+void applyFontTag(const QString &tag, TextFormat &format)
+{
+    const QStringList parts = tag.mid(1).split(QLatin1Char('|'));
+    if (!parts.isEmpty())
+        format.fontFamily = parts.first().trimmed();
+
+    for (const QString &part : parts)
+    {
+        if (part.startsWith(QLatin1Char('b'), Qt::CaseInsensitive))
+            format.bold = part.mid(1).toInt() != 0;
+        else if (part.startsWith(QLatin1Char('i'), Qt::CaseInsensitive))
+            format.italic = part.mid(1).toInt() != 0;
+    }
+}
+
+} // namespace
 
 QString MTextToHTML::convert(QString mtext)
 {
-    // Capture font family, bold flag, and italic flag (non-greedy for the font name).
-    QRegularExpression font(QStringLiteral("f(.+?)\\|b(.)\\|i(.)\\|c.+\\|p.+;"));
+    QString html;
+    TextFormat format;
+    QVector<TextFormat> formatStack;
+    bool spanOpen = false;
 
-    //mtext = "{\\fArial|b0|i0|c238|p34;Mezní úchylka\\PISO 2768 - mK}";
-    //mtext = "Mezní úchylka\\PISO 2768 - mK";
-//    mtext.replace(font, "");
-
-    QTextDocument doc;
-
-    QTextCursor cur(&doc);
-
-    QTextCharFormat format;
-
-    QRegularExpression onechars(QStringLiteral("[LlOoKkP\\\\]"));
-
-    bool istag = false;
-    QString tag;
-
-    for(int i=0; i< mtext.length(); i++)
-    {
-        QChar c = mtext[i];
-
-        if(c == '\\' && istag==false)
+    auto closeSpan = [&html, &spanOpen]() {
+        if (spanOpen)
         {
-            istag = true;
+            html += QStringLiteral("</span>");
+            spanOpen = false;
+        }
+    };
+
+    auto ensureSpan = [&html, &format, &spanOpen]() {
+        if (spanOpen)
+            return;
+
+        const QString style = cssForFormat(format);
+        if (!style.isEmpty())
+        {
+            html += QStringLiteral("<span style=\"%1\">").arg(style);
+            spanOpen = true;
+        }
+    };
+
+    auto appendText = [&html, &ensureSpan](const QString &text) {
+        ensureSpan();
+        html += text.toHtmlEscaped();
+    };
+
+    auto changeFormat = [&closeSpan](TextFormat &format,
+                                     const std::function<void(TextFormat &)> &change) {
+        closeSpan();
+        change(format);
+    };
+
+    for (int i = 0; i < mtext.length(); ++i)
+    {
+        const QChar c = mtext.at(i);
+
+        if (c == QLatin1Char('{'))
+        {
+            formatStack.append(format);
+            continue;
+        }
+        if (c == QLatin1Char('}'))
+        {
+            if (!formatStack.isEmpty())
+            {
+                const TextFormat parentFormat = formatStack.takeLast();
+                changeFormat(format, [&parentFormat](TextFormat &f) { f = parentFormat; });
+            }
             continue;
         }
 
-        if(istag)
-            tag += c;
-
-        if(!istag)
-            cur.insertText(c);
-
-        if(istag && tag.length() == 1)
+        if (c != QLatin1Char('\\'))
         {
-            if(onechars.match(tag).hasMatch())
-            {
-                switch( tag[0].toLatin1() )
-                {
-                case 'L':
-                    format.setFontUnderline(true);
-                    break;
-                case 'l':
-                    format.setFontUnderline(false);
-                    break;
-
-                case 'O':
-                    format.setFontOverline(true);
-                    break;
-
-                case 'o':
-                    format.setFontOverline(false);
-                    break;
-
-                case 'K':
-                    format.setFontStrikeOut(true);
-                    break;
-
-                case 'k':
-                    format.setFontStrikeOut(false);
-                    break;
-
-                case 'X':
-                case 'P':
-                    cur.insertBlock();
-                    break;
-
-                case '\\':
-                    cur.insertText("\\");
-                    break;
-                }
-
-                istag = false;
-                tag.clear();
-            }
-
-            else
-            {
-                int index = mtext.indexOf(";", i);
-                int n = index-i;
-
-                tag += mtext.mid(i+1, n);
-
-                qDebug() << "TAG: " << tag;
-
-                auto fontMatch = font.match(tag);
-                if(fontMatch.hasMatch())
-                {
-                    // captured texts: [1] font family [2] bold [3] italic
-                    format.setFontFamily(fontMatch.captured(1));
-                    format.setFontWeight( fontMatch.captured(2) == "1" ? QFont::Bold : QFont::Normal);
-                    format.setFontItalic(fontMatch.captured(3).toInt());
-                }
-
-                i = index;
-                istag = false;
-                tag.clear();
-            }
+            appendText(QString(c));
+            continue;
         }
 
+        if (++i >= mtext.length())
+        {
+            appendText(QStringLiteral("\\"));
+            break;
+        }
 
+        const QChar command = mtext.at(i);
+        switch (command.toLatin1())
+        {
+        case 'L':
+            changeFormat(format, [](TextFormat &f) { f.underline = true; });
+            break;
+        case 'l':
+            changeFormat(format, [](TextFormat &f) { f.underline = false; });
+            break;
+        case 'O':
+            changeFormat(format, [](TextFormat &f) { f.overline = true; });
+            break;
+        case 'o':
+            changeFormat(format, [](TextFormat &f) { f.overline = false; });
+            break;
+        case 'K':
+            changeFormat(format, [](TextFormat &f) { f.strikeOut = true; });
+            break;
+        case 'k':
+            changeFormat(format, [](TextFormat &f) { f.strikeOut = false; });
+            break;
+        case 'P':
+        case 'X':
+            closeSpan();
+            html += QStringLiteral("<br/>");
+            break;
+        case '~':
+            appendText(QStringLiteral(" "));
+            break;
+        case '\\':
+            appendText(QStringLiteral("\\"));
+            break;
+        case '{':
+            appendText(QStringLiteral("{"));
+            break;
+        case '}':
+            appendText(QStringLiteral("}"));
+            break;
+        default:
+        {
+            const int end = mtext.indexOf(QLatin1Char(';'), i);
+            if (end < 0)
+                break;
 
+            const QString tag = mtext.mid(i, end - i);
+            if (command == QLatin1Char('f') || command == QLatin1Char('F'))
+                changeFormat(format, [&tag](TextFormat &f) { applyFontTag(tag, f); });
+            else if (command == QLatin1Char('S'))
+                appendText(readableStackText(tag.mid(1)));
+
+            i = end;
+            break;
+        }
+        }
     }
 
-
-    /*QRegExp font("\\\\f(.+)\\|b.\\|i.\\|c.+\\|p.+;");
-    font.setMinimal(true);
-
-    mtext.replace(font, "<span style=\" font-family: \\1 \">");
-
-    //zbavení se nepodporovaných funkcí
-    QRegExp re("\\\\.+;");
-    re.setMinimal(true);
-    mtext.replace(re, "");
-
-    mtext.replace("{", "");
-    mtext.replace("}", "");*/
-
-    mtext = doc.toHtml();
-    qDebug() << doc.toPlainText();
-
-    return mtext;
+    closeSpan();
+    return html;
 }

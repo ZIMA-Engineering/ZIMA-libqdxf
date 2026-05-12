@@ -17,6 +17,7 @@
 */
 
 #include "dxfinterface.h"
+#include "mtexttohtml.h"
 #include "spline.h"
 #include <cmath>
 #include <iostream>
@@ -40,6 +41,18 @@ QString dxfStringToQString(const std::string &text)
 bool isMeaningfulPoint(const DRW_Coord &point)
 {
     return point.x != 0.0 || point.y != 0.0 || point.z != 0.0;
+}
+
+int attachmentPointForMText(const DRW_MText &data)
+{
+    if (data.textgen >= DRW_MText::TopLeft && data.textgen <= DRW_MText::BottomRight)
+        return data.textgen;
+
+    const int alignV = static_cast<int>(data.alignV);
+    if (alignV >= DRW_MText::TopLeft && alignV <= DRW_MText::BottomRight)
+        return alignV;
+
+    return DRW_MText::TopLeft;
 }
 
 } // namespace
@@ -199,8 +212,23 @@ void DXFInterface::addLWPolyline(const DRW_LWPolyline &data)
     }
 }
 
-void DXFInterface::addMText(const DRW_MText & /*data*/)
+void DXFInterface::addMText(const DRW_MText &data)
 {
+    QString html = MTextToHTML::convert(dxfStringToQString(data.text));
+    if (html.isEmpty())
+        return;
+
+    SceneText *item = new SceneText(html, fontForText(data),
+                                    attributesToPen(&data).color(),
+                                    heightForText(data),
+                                    1.0,
+                                    data.angle,
+                                    QPointF(data.basePoint.x, data.basePoint.y),
+                                    horizontalAlignmentForMText(data),
+                                    verticalAlignmentForMText(data),
+                                    true,
+                                    widthForMText(data));
+    mScene.addItem(item);
 }
 
 void DXFInterface::addPoint(const DRW_Point &data)
@@ -508,6 +536,38 @@ SceneText::VerticalAlignment DXFInterface::verticalAlignmentForText(const DRW_Te
     default:
         return SceneText::AlignBaseline;
     }
+}
+
+double DXFInterface::widthForMText(const DRW_MText &data)
+{
+    if (isUsableMeasurement(data.widthscale))
+        return data.widthscale;
+
+    return 0.0;
+}
+
+SceneText::HorizontalAlignment DXFInterface::horizontalAlignmentForMText(const DRW_MText &data)
+{
+    switch ((attachmentPointForMText(data) - 1) % 3)
+    {
+    case 1:
+        return SceneText::AlignCenter;
+    case 2:
+        return SceneText::AlignRight;
+    default:
+        return SceneText::AlignLeft;
+    }
+}
+
+SceneText::VerticalAlignment DXFInterface::verticalAlignmentForMText(const DRW_MText &data)
+{
+    const int attachmentPoint = attachmentPointForMText(data);
+    if (attachmentPoint >= DRW_MText::BottomLeft)
+        return SceneText::AlignBottom;
+    if (attachmentPoint >= DRW_MText::MiddleLeft)
+        return SceneText::AlignMiddle;
+
+    return SceneText::AlignTop;
 }
 
 void DXFInterface::setQPenLinetype(QPen & p, std::string linetype)

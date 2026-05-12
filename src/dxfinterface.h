@@ -213,6 +213,9 @@ private:
     QPointF anchorPointForText(const DRW_Text &data);
     SceneText::HorizontalAlignment horizontalAlignmentForText(const DRW_Text &data);
     SceneText::VerticalAlignment verticalAlignmentForText(const DRW_Text &data);
+    double widthForMText(const DRW_MText &data);
+    SceneText::HorizontalAlignment horizontalAlignmentForMText(const DRW_MText &data);
+    SceneText::VerticalAlignment verticalAlignmentForMText(const DRW_MText &data);
 
     QGraphicsScene mScene;
     QList<DRW_Layer> layers;

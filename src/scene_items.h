@@ -95,6 +95,8 @@ public:
               const QPointF &anchorPoint,
               HorizontalAlignment horizontalAlignment,
               VerticalAlignment verticalAlignment,
+              bool richText = false,
+              double maxWidth = 0.0,
               QGraphicsItem *parent = 0) :
         QGraphicsTextItem(parent)
     {
@@ -106,15 +108,23 @@ public:
         setFont(scaledFont);
         setDefaultTextColor(color);
         document()->setDocumentMargin(0);
-        setPlainText(text);
-        adjustSize();
-
-        const QRectF bounds = boundingRect();
         const QFontMetricsF metrics(scaledFont);
         const double naturalHeight = qMax(1.0, metrics.height());
         const double textHeight = height > 0.0 ? height : 1.0;
         const double yScale = textHeight / naturalHeight;
         const double xScale = yScale * (widthScale > 0.0 ? widthScale : 1.0);
+
+        if (richText)
+            setHtml(text);
+        else
+            setPlainText(text);
+
+        if (maxWidth > 0.0 && xScale > 0.0)
+            setTextWidth(maxWidth / xScale);
+        else
+            adjustSize();
+
+        const QRectF bounds = boundingRect();
         const QPointF localAnchor = anchorFor(bounds, metrics,
                                               horizontalAlignment,
                                               verticalAlignment);
