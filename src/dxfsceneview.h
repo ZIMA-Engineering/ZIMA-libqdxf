@@ -28,12 +28,10 @@ class DXFSceneView : public QGraphicsView
 public:
     explicit DXFSceneView(QWidget *parent = 0);
 
-private:
-    QPoint mouseLast;
-    bool mouseClicked;
 signals:
 
 public slots:
+    void fitAll();
 
 protected:
     void wheelEvent(QWheelEvent* event);

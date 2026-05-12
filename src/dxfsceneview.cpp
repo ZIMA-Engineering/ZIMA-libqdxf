@@ -17,20 +17,31 @@
 */
 
 #include "dxfsceneview.h"
-#include <QDebug>
 
 DXFSceneView::DXFSceneView(QWidget *parent) :
     QGraphicsView(parent)
 {
     setSceneRect(INT_MIN/2, INT_MIN/2, INT_MAX, INT_MAX);
     setRenderHints(QPainter::Antialiasing | QPainter::SmoothPixmapTransform);
-    setDragMode(ScrollHandDrag);
+    setDragMode(NoDrag);
+    setCursor(Qt::ArrowCursor);
     setTransformationAnchor(QGraphicsView::AnchorUnderMouse);
     scale(1, -1);
     setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 }
 
+void DXFSceneView::fitAll()
+{
+    if (!scene())
+        return;
+
+    const QRectF bounds = scene()->itemsBoundingRect();
+    if (bounds.isEmpty())
+        return;
+
+    fitInView(bounds, Qt::KeepAspectRatio);
+}
 
 void DXFSceneView::wheelEvent(QWheelEvent* event)
 {
@@ -46,32 +57,3 @@ void DXFSceneView::wheelEvent(QWheelEvent* event)
     }
 
 }
-
-/*void DXFSceneView::mousePressEvent(QMouseEvent *event)
-{
-    setCursor(Qt::ClosedHandCursor);
-    mouseLast = event->pos();
-    mouseClicked = true;
-
-}
-
-void DXFSceneView::mouseReleaseEvent(QMouseEvent *event)
-{
-    setCursor(Qt::OpenHandCursor);
-    mouseLast = QPoint(-1,-1);
-    mouseClicked = false;
-}
-
-void DXFSceneView::mouseMoveEvent(QMouseEvent *event)
-{
-    if(!mouseClicked)
-        return;
-
-    QPoint newpos = event->pos();
-
-    QPoint diff = newpos-mouseLast;
-
-    qDebug() << "mouse diff:" << diff.x() << diff.y();
-    translate(diff.x(), diff.y());
-    mouseLast = newpos;
-}*/
