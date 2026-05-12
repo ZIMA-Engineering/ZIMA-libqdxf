@@ -2738,13 +2738,7 @@ bool dxfRW::processImageDef() {
  * convert a int to string in hex
  **/
 std::string dxfRW::toHexStr(int n) {
-#if defined(__APPLE__)
-    char buffer[5];
-    sprintf(buffer, "%X", n);
-    return std::string(buffer);
-#else
     std::ostringstream Convert;
     Convert << std::uppercase << std::hex << n;
     return Convert.str();
-#endif
 }
