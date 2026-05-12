@@ -22,8 +22,12 @@
 #include <QGraphicsItem>
 #include "../libdxfrw/src/libdxfrw.h"
 #include <QDebug>
+#include <QFontMetricsF>
 #include <QPainter>
 #include <QGraphicsEllipseItem>
+#include <QGraphicsTextItem>
+#include <QTextDocument>
+#include <QTransform>
 
 
 class SceneArc : public QAbstractGraphicsShapeItem
@@ -68,6 +72,81 @@ public:
 
 private:
     DRW_Arc arc;
+};
+
+class SceneText : public QGraphicsTextItem
+{
+public:
+    enum HorizontalAlignment {
+        AlignLeft,
+        AlignCenter,
+        AlignRight
+    };
+
+    enum VerticalAlignment {
+        AlignBaseline,
+        AlignTop,
+        AlignMiddle,
+        AlignBottom
+    };
+
+    SceneText(const QString &text, const QFont &font, const QColor &color,
+              double height, double widthScale, double angle,
+              const QPointF &anchorPoint,
+              HorizontalAlignment horizontalAlignment,
+              VerticalAlignment verticalAlignment,
+              QGraphicsItem *parent = 0) :
+        QGraphicsTextItem(parent)
+    {
+        QFont scaledFont = font;
+        if (scaledFont.family().isEmpty())
+            scaledFont.setFamily(QStringLiteral("Arial"));
+
+        scaledFont.setPointSizeF(100.0);
+        setFont(scaledFont);
+        setDefaultTextColor(color);
+        document()->setDocumentMargin(0);
+        setPlainText(text);
+        adjustSize();
+
+        const QRectF bounds = boundingRect();
+        const QFontMetricsF metrics(scaledFont);
+        const double naturalHeight = qMax(1.0, metrics.height());
+        const double textHeight = height > 0.0 ? height : 1.0;
+        const double yScale = textHeight / naturalHeight;
+        const double xScale = yScale * (widthScale > 0.0 ? widthScale : 1.0);
+        const QPointF localAnchor = anchorFor(bounds, metrics,
+                                              horizontalAlignment,
+                                              verticalAlignment);
+
+        QTransform itemTransform;
+        itemTransform.rotate(angle);
+        itemTransform.scale(xScale, -yScale);
+        setTransform(itemTransform);
+        setPos(anchorPoint - itemTransform.map(localAnchor));
+    }
+
+private:
+    static QPointF anchorFor(const QRectF &bounds, const QFontMetricsF &metrics,
+                             HorizontalAlignment horizontalAlignment,
+                             VerticalAlignment verticalAlignment)
+    {
+        double x = bounds.left();
+        if (horizontalAlignment == AlignCenter)
+            x = bounds.center().x();
+        else if (horizontalAlignment == AlignRight)
+            x = bounds.right();
+
+        double y = metrics.ascent();
+        if (verticalAlignment == AlignTop)
+            y = bounds.top();
+        else if (verticalAlignment == AlignMiddle)
+            y = bounds.center().y();
+        else if (verticalAlignment == AlignBottom)
+            y = bounds.bottom();
+
+        return QPointF(x, y);
+    }
 };
 
 #endif // SCENE_ITEMS_H

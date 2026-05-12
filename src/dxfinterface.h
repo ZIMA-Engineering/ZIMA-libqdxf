@@ -22,7 +22,9 @@
 #include <QList>
 #include <QLineF>
 #include <QPen>
+#include <QFont>
 #include <QGraphicsScene>
+#include <QPointF>
 #include "scene_items.h"
 
 class DXFInterface : public DRW_Interface
@@ -204,8 +206,17 @@ public:
 
 
 private:
+    DRW_Textstyle getTextStyle(std::string name);
+    QFont fontForText(const DRW_Text &data);
+    double heightForText(const DRW_Text &data);
+    double widthScaleForText(const DRW_Text &data);
+    QPointF anchorPointForText(const DRW_Text &data);
+    SceneText::HorizontalAlignment horizontalAlignmentForText(const DRW_Text &data);
+    SceneText::VerticalAlignment verticalAlignmentForText(const DRW_Text &data);
+
     QGraphicsScene mScene;
     QList<DRW_Layer> layers;
+    QList<DRW_Textstyle> textStyles;
     QList<SceneArc*> arches;
 };
 

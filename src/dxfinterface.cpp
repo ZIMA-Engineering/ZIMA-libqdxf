@@ -18,10 +18,31 @@
 
 #include "dxfinterface.h"
 #include "spline.h"
+#include <cmath>
 #include <iostream>
+#include <QFileInfo>
 #include <QPen>
 #include <QDebug>
 #include "scene_items.h"
+
+namespace {
+
+bool isUsableMeasurement(double value)
+{
+    return std::isfinite(value) && value > 0.0 && value < 1000000000.0;
+}
+
+QString dxfStringToQString(const std::string &text)
+{
+    return QString::fromUtf8(text.c_str());
+}
+
+bool isMeaningfulPoint(const DRW_Coord &point)
+{
+    return point.x != 0.0 || point.y != 0.0 || point.z != 0.0;
+}
+
+} // namespace
 
 DXFInterface::DXFInterface(QString filename)
 {
@@ -217,13 +238,26 @@ void DXFInterface::addSpline(const DRW_Spline *data)
     }
 }
 
-void DXFInterface::addText(const DRW_Text & /*data*/)
+void DXFInterface::addText(const DRW_Text &data)
 {
+    QString text = dxfStringToQString(data.text);
+    if (text.isEmpty())
+        return;
+
+    SceneText *item = new SceneText(text, fontForText(data),
+                                    attributesToPen(&data).color(),
+                                    heightForText(data),
+                                    widthScaleForText(data),
+                                    data.angle,
+                                    anchorPointForText(data),
+                                    horizontalAlignmentForText(data),
+                                    verticalAlignmentForText(data));
+    mScene.addItem(item);
 }
 
-void DXFInterface::addTextStyle(const DRW_Textstyle & /*data*/)
+void DXFInterface::addTextStyle(const DRW_Textstyle &data)
 {
-
+    textStyles.append(data);
 }
 
 void DXFInterface::addTrace(const DRW_Trace & /*data*/)
@@ -371,6 +405,109 @@ DRW_Layer DXFInterface::getLayer(std::string name)
 
     qDebug() << "layer not found :" << name.c_str();
     return DRW_Layer();
+}
+
+DRW_Textstyle DXFInterface::getTextStyle(std::string name)
+{
+    foreach(DRW_Textstyle style, textStyles)
+    {
+        if (style.name == name)
+            return style;
+    }
+
+    const QString requestedName = dxfStringToQString(name);
+    foreach(DRW_Textstyle style, textStyles)
+    {
+        if (dxfStringToQString(style.name).compare(requestedName, Qt::CaseInsensitive) == 0)
+            return style;
+    }
+
+    return DRW_Textstyle();
+}
+
+QFont DXFInterface::fontForText(const DRW_Text &data)
+{
+    DRW_Textstyle style = getTextStyle(data.style);
+    QString family = dxfStringToQString(style.font).trimmed();
+    family.replace(QLatin1Char('\\'), QLatin1Char('/'));
+    family = QFileInfo(family).completeBaseName();
+
+    if (family.isEmpty()
+            || family.compare(QStringLiteral("txt"), Qt::CaseInsensitive) == 0
+            || family.compare(QStringLiteral("standard"), Qt::CaseInsensitive) == 0)
+    {
+        family = QStringLiteral("Arial");
+    }
+
+    QFont font(family);
+    font.setStyleStrategy(QFont::PreferAntialias);
+    return font;
+}
+
+double DXFInterface::heightForText(const DRW_Text &data)
+{
+    if (isUsableMeasurement(data.height))
+        return data.height;
+
+    DRW_Textstyle style = getTextStyle(data.style);
+    if (isUsableMeasurement(style.height))
+        return style.height;
+    if (isUsableMeasurement(style.lastHeight))
+        return style.lastHeight;
+
+    return 1.0;
+}
+
+double DXFInterface::widthScaleForText(const DRW_Text &data)
+{
+    if (isUsableMeasurement(data.widthscale))
+        return data.widthscale;
+
+    DRW_Textstyle style = getTextStyle(data.style);
+    if (isUsableMeasurement(style.width))
+        return style.width;
+
+    return 1.0;
+}
+
+QPointF DXFInterface::anchorPointForText(const DRW_Text &data)
+{
+    const bool usesAlignmentPoint = data.alignH != DRW_Text::HLeft
+            || data.alignV != DRW_Text::VBaseLine;
+    const DRW_Coord &point = usesAlignmentPoint && isMeaningfulPoint(data.secPoint)
+            ? data.secPoint
+            : data.basePoint;
+
+    return QPointF(point.x, point.y);
+}
+
+SceneText::HorizontalAlignment DXFInterface::horizontalAlignmentForText(const DRW_Text &data)
+{
+    switch (data.alignH)
+    {
+    case DRW_Text::HCenter:
+    case DRW_Text::HMiddle:
+        return SceneText::AlignCenter;
+    case DRW_Text::HRight:
+        return SceneText::AlignRight;
+    default:
+        return SceneText::AlignLeft;
+    }
+}
+
+SceneText::VerticalAlignment DXFInterface::verticalAlignmentForText(const DRW_Text &data)
+{
+    switch (data.alignV)
+    {
+    case DRW_Text::VTop:
+        return SceneText::AlignTop;
+    case DRW_Text::VMiddle:
+        return SceneText::AlignMiddle;
+    case DRW_Text::VBottom:
+        return SceneText::AlignBottom;
+    default:
+        return SceneText::AlignBaseline;
+    }
 }
 
 void DXFInterface::setQPenLinetype(QPen & p, std::string linetype)
