@@ -695,7 +695,7 @@ public:
     }
 
     void update() {
-        numedges = objlist.size();
+        numedges = static_cast<int>(objlist.size());
     }
 
 public:
@@ -1360,4 +1360,3 @@ public:
 #endif
 
 // EOF
-

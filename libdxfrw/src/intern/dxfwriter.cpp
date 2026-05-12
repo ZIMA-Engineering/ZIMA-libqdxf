@@ -152,10 +152,10 @@ bool dxfWriterBinary::writeString(int code, std::string text) {
 bool dxfWriterBinary::writeInt16(int code, int data) {
     char bufcode[2];
     char buffer[2];
-    bufcode[0] =code & 0xFF;
-    bufcode[1] =code  >> 8;
-    buffer[0] =data & 0xFF;
-    buffer[1] =data  >> 8;
+    bufcode[0] = static_cast<char>(code & 0xFF);
+    bufcode[1] = static_cast<char>(code >> 8);
+    buffer[0] = static_cast<char>(data & 0xFF);
+    buffer[1] = static_cast<char>(data >> 8);
     filestr->write(bufcode, 2);
     filestr->write(buffer, 2);
     return (filestr->good());
@@ -163,32 +163,32 @@ bool dxfWriterBinary::writeInt16(int code, int data) {
 
 bool dxfWriterBinary::writeInt32(int code, int data) {
     char buffer[4];
-    buffer[0] =code & 0xFF;
-    buffer[1] =code  >> 8;
+    buffer[0] = static_cast<char>(code & 0xFF);
+    buffer[1] = static_cast<char>(code >> 8);
     filestr->write(buffer, 2);
 
-    buffer[0] =data & 0xFF;
-    buffer[1] =data  >> 8;
-    buffer[2] =data  >> 16;
-    buffer[3] =data  >> 24;
+    buffer[0] = static_cast<char>(data & 0xFF);
+    buffer[1] = static_cast<char>(data >> 8);
+    buffer[2] = static_cast<char>(data >> 16);
+    buffer[3] = static_cast<char>(data >> 24);
     filestr->write(buffer, 4);
     return (filestr->good());
 }
 
 bool dxfWriterBinary::writeInt64(int code, unsigned long long int data) {
     char buffer[8];
-    buffer[0] =code & 0xFF;
-    buffer[1] =code  >> 8;
+    buffer[0] = static_cast<char>(code & 0xFF);
+    buffer[1] = static_cast<char>(code >> 8);
     filestr->write(buffer, 2);
 
-    buffer[0] =data & 0xFF;
-    buffer[1] =data  >> 8;
-    buffer[2] =data  >> 16;
-    buffer[3] =data  >> 24;
-    buffer[4] =data  >> 32;
-    buffer[5] =data  >> 40;
-    buffer[6] =data  >> 48;
-    buffer[7] =data  >> 56;
+    buffer[0] = static_cast<char>(data & 0xFF);
+    buffer[1] = static_cast<char>(data >> 8);
+    buffer[2] = static_cast<char>(data >> 16);
+    buffer[3] = static_cast<char>(data >> 24);
+    buffer[4] = static_cast<char>(data >> 32);
+    buffer[5] = static_cast<char>(data >> 40);
+    buffer[6] = static_cast<char>(data >> 48);
+    buffer[7] = static_cast<char>(data >> 56);
     filestr->write(buffer, 8);
     return (filestr->good());
 }
@@ -278,4 +278,3 @@ bool dxfWriterAscii::writeBool(int code, bool data) {
     *filestr << code << std::endl << data << std::endl;
     return (filestr->good());
 }
-

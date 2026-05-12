@@ -693,7 +693,7 @@ bool dxfRW::writeLWPolyline(DRW_LWPolyline *ent) {
         if (version > DRW::AC1009) {
             writer->writeString(100, "AcDbPolyline");
         }
-        ent->vertexnum = ent->vertlist.size();
+        ent->vertexnum = static_cast<int>(ent->vertlist.size());
         writer->writeInt32(90, ent->vertexnum);
         writer->writeInt16(70, ent->flags);
         writer->writeDouble(43, ent->width);
@@ -761,7 +761,7 @@ bool dxfRW::writePolyline(DRW_Polyline *ent) {
         writer->writeDouble(230, crd.z);
     }
 
-    int vertexnum = ent->vertlist.size();
+    int vertexnum = static_cast<int>(ent->vertlist.size());
     for (int i = 0;  i< vertexnum; i++) {
         DRW_Vertex *v = ent->vertlist.at(i);
         writer->writeString(0, "VERTEX");
@@ -859,7 +859,7 @@ bool dxfRW::writeHatch(DRW_Hatch *ent) {
         writer->writeString(2, ent->name);
         writer->writeInt16(70, ent->solid);
         writer->writeInt16(71, ent->associative);
-        ent->loopsnum = ent->looplist.size();
+        ent->loopsnum = static_cast<int>(ent->looplist.size());
         writer->writeInt16(91, ent->loopsnum);
         //write paths data
         for (int i = 0;  i< ent->loopsnum; i++) {
@@ -949,9 +949,9 @@ bool dxfRW::writeLeader(DRW_Leader *ent) {
         writer->writeInt16(75, ent->hookflag);
         writer->writeDouble(40, ent->textheight);
         writer->writeDouble(41, ent->textwidth);
-        writer->writeDouble(76, ent->vertnum);
-        writer->writeDouble(76, ent->vertexlist.size());
-        for (unsigned int i=0; i<ent->vertexlist.size(); i++) {
+        ent->vertnum = static_cast<int>(ent->vertexlist.size());
+        writer->writeInt16(76, ent->vertnum);
+        for (int i=0; i<ent->vertnum; i++) {
             DRW_Coord *vert = ent->vertexlist.at(i);
             writer->writeDouble(10, vert->x);
             writer->writeDouble(20, vert->y);
