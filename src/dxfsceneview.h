@@ -20,6 +20,8 @@
 #define DXFSCENEVIEW_H
 
 #include <QGraphicsView>
+#include <QMouseEvent>
+#include <QPoint>
 #include <QWheelEvent>
 
 class DXFSceneView : public QGraphicsView
@@ -34,10 +36,14 @@ public slots:
     void fitAll();
 
 protected:
+    void mousePressEvent(QMouseEvent *event);
+    void mouseReleaseEvent(QMouseEvent *event);
+    void mouseMoveEvent(QMouseEvent *event);
     void wheelEvent(QWheelEvent* event);
-    /*   void mousePressEvent(QMouseEvent *event);
-       void mouseReleaseEvent(QMouseEvent *event);
-       void mouseMoveEvent(QMouseEvent *event);*/
+
+private:
+    bool m_isPanning;
+    QPoint m_lastPanPosition;
 
 };
 

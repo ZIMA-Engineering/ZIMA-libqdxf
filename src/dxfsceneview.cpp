@@ -19,7 +19,8 @@
 #include "dxfsceneview.h"
 
 DXFSceneView::DXFSceneView(QWidget *parent) :
-    QGraphicsView(parent)
+    QGraphicsView(parent),
+    m_isPanning(false)
 {
     setSceneRect(INT_MIN/2, INT_MIN/2, INT_MAX, INT_MAX);
     setRenderHints(QPainter::Antialiasing | QPainter::SmoothPixmapTransform);
@@ -41,6 +42,51 @@ void DXFSceneView::fitAll()
         return;
 
     fitInView(bounds, Qt::KeepAspectRatio);
+}
+
+void DXFSceneView::mousePressEvent(QMouseEvent *event)
+{
+    if (event->button() == Qt::MiddleButton)
+    {
+        m_isPanning = true;
+        m_lastPanPosition = event->position().toPoint();
+        setCursor(Qt::ClosedHandCursor);
+        event->accept();
+        return;
+    }
+
+    QGraphicsView::mousePressEvent(event);
+}
+
+void DXFSceneView::mouseReleaseEvent(QMouseEvent *event)
+{
+    if (event->button() == Qt::MiddleButton && m_isPanning)
+    {
+        m_isPanning = false;
+        setCursor(Qt::ArrowCursor);
+        event->accept();
+        return;
+    }
+
+    QGraphicsView::mouseReleaseEvent(event);
+}
+
+void DXFSceneView::mouseMoveEvent(QMouseEvent *event)
+{
+    if (m_isPanning && (event->buttons() & Qt::MiddleButton))
+    {
+        const QPoint currentPosition = event->position().toPoint();
+        const QPointF lastScenePosition = mapToScene(m_lastPanPosition);
+        const QPointF currentScenePosition = mapToScene(currentPosition);
+        const QPointF sceneDelta = lastScenePosition - currentScenePosition;
+
+        centerOn(mapToScene(viewport()->rect().center()) + sceneDelta);
+        m_lastPanPosition = currentPosition;
+        event->accept();
+        return;
+    }
+
+    QGraphicsView::mouseMoveEvent(event);
 }
 
 void DXFSceneView::wheelEvent(QWheelEvent* event)
