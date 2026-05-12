@@ -38,9 +38,24 @@ QString dxfStringToQString(const std::string &text)
     return QString::fromUtf8(text.c_str());
 }
 
-bool isMeaningfulPoint(const DRW_Coord &point)
+QPointF coordToPoint(const DRW_Coord &point)
 {
-    return point.x != 0.0 || point.y != 0.0 || point.z != 0.0;
+    return QPointF(point.x, point.y);
+}
+
+QLineF textAlignmentLine(const DRW_Text &data)
+{
+    return QLineF(coordToPoint(data.basePoint), coordToPoint(data.secPoint));
+}
+
+bool textUsesFitLine(const DRW_Text &data)
+{
+    return data.alignH == DRW_Text::HAligned || data.alignH == DRW_Text::HFit;
+}
+
+double angleForLine(const QLineF &line)
+{
+    return std::atan2(line.dy(), line.dx()) * 180.0 / M_PI;
 }
 
 int attachmentPointForMText(const DRW_MText &data)
@@ -272,14 +287,36 @@ void DXFInterface::addText(const DRW_Text &data)
     if (text.isEmpty())
         return;
 
+    const QLineF alignmentLine = textAlignmentLine(data);
+    QPointF anchorPoint = anchorPointForText(data);
+    double textAngle = data.angle;
+    double widthScale = widthScaleForText(data);
+    double targetWidth = 0.0;
+    SceneText::ScaleMode scaleMode = SceneText::ScaleFromTextHeight;
+
+    if (textUsesFitLine(data) && alignmentLine.length() > 0.0)
+    {
+        anchorPoint = alignmentLine.p1();
+        textAngle = angleForLine(alignmentLine);
+        widthScale = 1.0;
+        targetWidth = alignmentLine.length();
+        scaleMode = data.alignH == DRW_Text::HAligned
+                ? SceneText::ScaleUniformToTarget
+                : SceneText::ScaleWidthToTarget;
+    }
+
     SceneText *item = new SceneText(text, fontForText(data),
                                     attributesToPen(&data).color(),
                                     heightForText(data),
-                                    widthScaleForText(data),
-                                    data.angle,
-                                    anchorPointForText(data),
+                                    widthScale,
+                                    textAngle,
+                                    anchorPoint,
                                     horizontalAlignmentForText(data),
-                                    verticalAlignmentForText(data));
+                                    verticalAlignmentForText(data),
+                                    false,
+                                    0.0,
+                                    scaleMode,
+                                    targetWidth);
     mScene.addItem(item);
 }
 
@@ -502,11 +539,11 @@ QPointF DXFInterface::anchorPointForText(const DRW_Text &data)
 {
     const bool usesAlignmentPoint = data.alignH != DRW_Text::HLeft
             || data.alignV != DRW_Text::VBaseLine;
-    const DRW_Coord &point = usesAlignmentPoint && isMeaningfulPoint(data.secPoint)
+    const DRW_Coord &point = usesAlignmentPoint
             ? data.secPoint
             : data.basePoint;
 
-    return QPointF(point.x, point.y);
+    return coordToPoint(point);
 }
 
 SceneText::HorizontalAlignment DXFInterface::horizontalAlignmentForText(const DRW_Text &data)
@@ -525,6 +562,9 @@ SceneText::HorizontalAlignment DXFInterface::horizontalAlignmentForText(const DR
 
 SceneText::VerticalAlignment DXFInterface::verticalAlignmentForText(const DRW_Text &data)
 {
+    if (data.alignH == DRW_Text::HMiddle)
+        return SceneText::AlignMiddle;
+
     switch (data.alignV)
     {
     case DRW_Text::VTop:

@@ -90,6 +90,12 @@ public:
         AlignBottom
     };
 
+    enum ScaleMode {
+        ScaleFromTextHeight,
+        ScaleWidthToTarget,
+        ScaleUniformToTarget
+    };
+
     SceneText(const QString &text, const QFont &font, const QColor &color,
               double height, double widthScale, double angle,
               const QPointF &anchorPoint,
@@ -97,6 +103,8 @@ public:
               VerticalAlignment verticalAlignment,
               bool richText = false,
               double maxWidth = 0.0,
+              ScaleMode scaleMode = ScaleFromTextHeight,
+              double targetWidth = 0.0,
               QGraphicsItem *parent = 0) :
         QGraphicsTextItem(parent)
     {
@@ -111,8 +119,8 @@ public:
         const QFontMetricsF metrics(scaledFont);
         const double naturalHeight = qMax(1.0, metrics.height());
         const double textHeight = height > 0.0 ? height : 1.0;
-        const double yScale = textHeight / naturalHeight;
-        const double xScale = yScale * (widthScale > 0.0 ? widthScale : 1.0);
+        double yScale = textHeight / naturalHeight;
+        double xScale = yScale * (widthScale > 0.0 ? widthScale : 1.0);
 
         if (richText)
             setHtml(text);
@@ -125,6 +133,20 @@ public:
             adjustSize();
 
         const QRectF bounds = boundingRect();
+        if (targetWidth > 0.0 && bounds.width() > 0.0)
+        {
+            const double fittedScale = targetWidth / bounds.width();
+            if (scaleMode == ScaleUniformToTarget)
+            {
+                xScale = fittedScale;
+                yScale = fittedScale;
+            }
+            else if (scaleMode == ScaleWidthToTarget)
+            {
+                xScale = fittedScale;
+            }
+        }
+
         const QPointF localAnchor = anchorFor(bounds, metrics,
                                               horizontalAlignment,
                                               verticalAlignment);
