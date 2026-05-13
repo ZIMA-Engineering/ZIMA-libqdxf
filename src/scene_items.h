@@ -25,7 +25,9 @@
 #include <QFontMetricsF>
 #include <QPainter>
 #include <QGraphicsEllipseItem>
+#include <QGraphicsPathItem>
 #include <QGraphicsTextItem>
+#include <QPainterPath>
 #include <QTextDocument>
 #include <QTransform>
 
@@ -130,7 +132,10 @@ public:
         if (maxWidth > 0.0 && xScale > 0.0)
             setTextWidth(maxWidth / xScale);
         else
+        {
+            setTextWidth(-1);
             adjustSize();
+        }
 
         const QRectF bounds = boundingRect();
         if (targetWidth > 0.0 && bounds.width() > 0.0)
@@ -175,6 +180,84 @@ private:
         else if (verticalAlignment == AlignMiddle)
             y = bounds.center().y();
         else if (verticalAlignment == AlignBottom)
+            y = bounds.bottom();
+
+        return QPointF(x, y);
+    }
+};
+
+class ScenePlainText : public QGraphicsPathItem
+{
+public:
+    ScenePlainText(const QString &text, const QFont &font, const QColor &color,
+                   double height, double widthScale, double angle,
+                   const QPointF &anchorPoint,
+                   SceneText::HorizontalAlignment horizontalAlignment,
+                   SceneText::VerticalAlignment verticalAlignment,
+                   SceneText::ScaleMode scaleMode = SceneText::ScaleFromTextHeight,
+                   double targetWidth = 0.0,
+                   QGraphicsItem *parent = 0) :
+        QGraphicsPathItem(parent)
+    {
+        QFont scaledFont = font;
+        if (scaledFont.family().isEmpty())
+            scaledFont.setFamily(QStringLiteral("Arial"));
+
+        scaledFont.setPointSizeF(100.0);
+
+        QPainterPath textPath;
+        textPath.addText(0.0, 0.0, scaledFont, text);
+        setPath(textPath);
+        setBrush(color);
+        setPen(Qt::NoPen);
+
+        const QRectF bounds = textPath.boundingRect();
+        const double naturalHeight = qMax(1.0, bounds.height());
+        const double naturalWidth = qMax(1.0, bounds.width());
+        const double textHeight = height > 0.0 ? height : 1.0;
+        double yScale = textHeight / naturalHeight;
+        double xScale = yScale * (widthScale > 0.0 ? widthScale : 1.0);
+
+        if (targetWidth > 0.0)
+        {
+            const double fittedScale = targetWidth / naturalWidth;
+            if (scaleMode == SceneText::ScaleUniformToTarget)
+            {
+                xScale = fittedScale;
+                yScale = fittedScale;
+            }
+            else if (scaleMode == SceneText::ScaleWidthToTarget)
+            {
+                xScale = fittedScale;
+            }
+        }
+
+        const QPointF localAnchor = anchorFor(bounds, horizontalAlignment,
+                                              verticalAlignment);
+        QTransform itemTransform;
+        itemTransform.rotate(angle);
+        itemTransform.scale(xScale, -yScale);
+        setTransform(itemTransform);
+        setPos(anchorPoint - itemTransform.map(localAnchor));
+    }
+
+private:
+    static QPointF anchorFor(const QRectF &bounds,
+                             SceneText::HorizontalAlignment horizontalAlignment,
+                             SceneText::VerticalAlignment verticalAlignment)
+    {
+        double x = bounds.left();
+        if (horizontalAlignment == SceneText::AlignCenter)
+            x = bounds.center().x();
+        else if (horizontalAlignment == SceneText::AlignRight)
+            x = bounds.right();
+
+        double y = 0.0;
+        if (verticalAlignment == SceneText::AlignTop)
+            y = bounds.top();
+        else if (verticalAlignment == SceneText::AlignMiddle)
+            y = bounds.center().y();
+        else if (verticalAlignment == SceneText::AlignBottom)
             y = bounds.bottom();
 
         return QPointF(x, y);

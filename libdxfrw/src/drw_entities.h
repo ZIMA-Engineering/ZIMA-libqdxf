@@ -519,6 +519,7 @@ public:
         interlin = 1;
         alignV = (VAlign)TopLeft;
         textgen = 1;
+        hasReferenceWidth = false;
         haveXAxis = false;    //if true needed to recalculate angle
     }
 
@@ -527,6 +528,7 @@ public:
 
 public:
     double interlin;     /*!< width factor, code 44 */
+    bool hasReferenceWidth; /*!< true if reference width code 41 was read */
 private:
     bool haveXAxis;
 };

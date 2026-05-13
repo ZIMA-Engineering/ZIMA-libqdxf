@@ -305,18 +305,16 @@ void DXFInterface::addText(const DRW_Text &data)
                 : SceneText::ScaleWidthToTarget;
     }
 
-    SceneText *item = new SceneText(text, fontForText(data),
-                                    attributesToPen(&data).color(),
-                                    heightForText(data),
-                                    widthScale,
-                                    textAngle,
-                                    anchorPoint,
-                                    horizontalAlignmentForText(data),
-                                    verticalAlignmentForText(data),
-                                    false,
-                                    0.0,
-                                    scaleMode,
-                                    targetWidth);
+    ScenePlainText *item = new ScenePlainText(text, fontForText(data),
+                                              attributesToPen(&data).color(),
+                                              heightForText(data),
+                                              widthScale,
+                                              textAngle,
+                                              anchorPoint,
+                                              horizontalAlignmentForText(data),
+                                              verticalAlignmentForText(data),
+                                              scaleMode,
+                                              targetWidth);
     mScene.addItem(item);
 }
 
@@ -580,7 +578,7 @@ SceneText::VerticalAlignment DXFInterface::verticalAlignmentForText(const DRW_Te
 
 double DXFInterface::widthForMText(const DRW_MText &data)
 {
-    if (isUsableMeasurement(data.widthscale))
+    if (data.hasReferenceWidth && isUsableMeasurement(data.widthscale))
         return data.widthscale;
 
     return 0.0;

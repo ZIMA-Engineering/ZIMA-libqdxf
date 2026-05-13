@@ -463,6 +463,10 @@ void DRW_MText::parseCode(int code, dxfReader *reader) {
     case 3:
         text += reader->getString();
         break;
+    case 41:
+        widthscale = reader->getDouble();
+        hasReferenceWidth = true;
+        break;
     case 44:
         interlin = reader->getDouble();
         break;
